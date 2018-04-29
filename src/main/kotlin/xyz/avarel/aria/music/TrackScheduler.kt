@@ -1,0 +1,102 @@
+package xyz.avarel.aria.music
+
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
+import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
+import org.slf4j.LoggerFactory
+import java.util.*
+
+/**
+ * Handles track scheduling, music queue, and repeat options.
+ *
+ * @author Avarel
+ */
+class TrackScheduler(private val controller: MusicController) : AudioEventAdapter() {
+    companion object {
+        val LOG = LoggerFactory.getLogger(TrackScheduler::class.java)!!
+    }
+
+    /**
+     * @return List of audio tracks queued.
+     */
+    val queue: Queue<AudioTrack> = LinkedList()
+
+    /**
+     * @return The current repeat mode.
+     * @see RepeatMode
+     */
+    var repeatMode: RepeatMode = RepeatMode.NONE
+
+    /**
+     * @return The last [AudioTrack] played.
+     */
+    var lastTrack: AudioTrack? = null
+        private set
+
+    /**
+     * @return The total length of the queue in milliseconds.
+     */
+    val duration: Long get() = queue.fold(0L) { a, track ->
+        if (track.duration == Long.MAX_VALUE) return Long.MAX_VALUE else a + track.duration
+    }
+
+    /**
+     * Add the next track to offer or play right away if nothing is in the offer.
+     *
+     * @param track
+     *        The track to play or add to offer.
+     */
+    fun offer(track: AudioTrack) {
+        if (!controller.player.startTrack(track, true)) {
+            queue.offer(track)
+        } else {
+            LOG.debug("${track.info.title} playback started.")
+        }
+    }
+
+    /**
+     * Start the next track, stopping the current one if it is playing.
+     */
+    fun nextTrack() {
+        if (queue.isEmpty()) return
+        val track = queue.poll()
+        controller.player.startTrack(track, false)
+        LOG.debug("${track.info.title} playback started.")
+    }
+
+    /**
+     * Handles starting the next track.
+     *
+     * Different [RepeatMode] will affect the track scheduler.
+     * - [RepeatMode.NONE]: Start the next track.
+     * - [RepeatMode.QUEUE]: Start the next track and add the previous track to the end of the offer.
+     * - [RepeatMode.SONG]: Start the current track over again.
+     *
+     * @param player
+     *        Audio player
+     * @param track
+     *        Audio track that ended
+     * @param endReason
+     *        The reason why the track stopped playing
+     */
+    override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
+        this.lastTrack = track
+        LOG.debug("${track.info.title} playback ended.")
+
+        if (endReason.mayStartNext) {
+            when (repeatMode) {
+                RepeatMode.SONG -> {
+                    val newTrack = track.makeClone().also { it.userData = track.userData }
+                    player.startTrack(newTrack, false)
+                }
+                RepeatMode.QUEUE -> {
+                    val newTrack = track.makeClone().also { it.userData = track.userData }
+                    queue.offer(newTrack)
+                    nextTrack()
+                }
+                RepeatMode.NONE -> nextTrack()
+            }
+        }
+    }
+}
