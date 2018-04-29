@@ -1,9 +1,8 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.music.RepeatMode
-import xyz.avarel.aria.requireMusicControllerMessage
-import xyz.avarel.aria.requirePlayingTrackMessage
+import xyz.avarel.aria.utils.requireMusicControllerMessage
+import xyz.avarel.aria.utils.requirePlayingTrackMessage
 import xyz.avarel.core.commands.*
 
 @CommandInfo(

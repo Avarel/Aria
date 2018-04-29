@@ -1,4 +1,4 @@
-package xyz.avarel.core.db
+package xyz.avarel.core.store
 
 /**
  * A key-value store abstraction.

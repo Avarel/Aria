@@ -1,4 +1,4 @@
-package xyz.avarel.core.db
+package xyz.avarel.core.store
 
 abstract class AbstractStoreNode(protected val key: String): StoreNode {
     override fun get() = getOrNull()!!

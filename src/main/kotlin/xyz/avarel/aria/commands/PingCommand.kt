@@ -1,7 +1,7 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.await
+import xyz.avarel.aria.utils.await
 import xyz.avarel.core.commands.*
 
 @CommandInfo(

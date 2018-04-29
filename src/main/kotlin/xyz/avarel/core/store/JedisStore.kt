@@ -1,4 +1,4 @@
-package xyz.avarel.core.db
+package xyz.avarel.core.store
 
 import org.slf4j.LoggerFactory
 import redis.clients.jedis.JedisPool

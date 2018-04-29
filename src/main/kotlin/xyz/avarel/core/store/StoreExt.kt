@@ -1,4 +1,4 @@
-package xyz.avarel.core.db
+package xyz.avarel.core.store
 
 inline fun StoreNode.getOrPut(defaultValue: () -> String): String {
     val value = getOrNull()

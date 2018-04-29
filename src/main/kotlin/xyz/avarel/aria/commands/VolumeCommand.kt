@@ -1,8 +1,8 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.progressBarTo
-import xyz.avarel.aria.requireMusicControllerMessage
+import xyz.avarel.aria.utils.progressBarTo
+import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.core.commands.*
 
 @CommandInfo(

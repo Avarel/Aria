@@ -3,6 +3,7 @@ package xyz.avarel.aria.commands
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.*
 import xyz.avarel.aria.music.MusicController
+import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 import java.util.*
@@ -85,7 +86,7 @@ class QueueCommand : AnnotatedCommand<MessageContext> {
                         else try {
                             it.toInt().coerceAtLeast(1)
                         } catch (e: NumberFormatException) {
-                            return invalidArgumentsMessage(context , "start of range")
+                            return invalidArgumentsMessage(context, "start of range")
                         }
                     }
 
