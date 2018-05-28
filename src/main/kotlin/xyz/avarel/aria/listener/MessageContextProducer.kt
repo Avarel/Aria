@@ -19,8 +19,6 @@ import java.util.ArrayList
  *
  * The message context is then published to the stream.
  *
- * @param prefix
- *        The prefix that the message event is required to have.
  * @author Avarel
  */
 class MessageContextProducer(

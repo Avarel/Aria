@@ -41,7 +41,7 @@ class JedisStore(private val pool: JedisPool): Store {
             }
         }
 
-        override fun getOrNull(): String? {
+        override fun get(): String? {
             LOG.debug("Retrieving \"$key\".")
             pool.resource.use { client ->
                 return client[key]

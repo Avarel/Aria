@@ -10,6 +10,7 @@ import java.util.*
 /**
  * Handles track scheduling, music queue, and repeat options.
  *
+ * @param controller Main [MusicController] instance.
  * @author Avarel
  */
 class TrackScheduler(private val controller: MusicController) : AudioEventAdapter() {
@@ -20,7 +21,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
     /**
      * @return List of audio tracks queued.
      */
-    val queue: Queue<AudioTrack> = LinkedList()
+    val queue: Deque<AudioTrack> = ArrayDeque()
 
     /**
      * @return The current repeat mode.
@@ -53,6 +54,20 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
         } else {
             LOG.debug("${track.info.title} playback started.")
         }
+    }
+
+    fun remove(index: Int): AudioTrack {
+        if (index >= queue.size) throw IndexOutOfBoundsException(index)
+        queue.iterator().apply {
+            withIndex().forEach { (i, item) ->
+                if (i == index) {
+                    this.remove()
+                    return item
+                }
+            }
+        }
+        queue.descendingIterator()
+        throw IllegalStateException()
     }
 
     /**

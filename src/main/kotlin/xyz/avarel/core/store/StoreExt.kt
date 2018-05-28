@@ -1,7 +1,7 @@
 package xyz.avarel.core.store
 
 inline fun StoreNode.getOrPut(defaultValue: () -> String): String {
-    val value = getOrNull()
+    val value = get()
     return if (value == null) {
         val answer = defaultValue()
         set(answer)
@@ -12,7 +12,7 @@ inline fun StoreNode.getOrPut(defaultValue: () -> String): String {
 }
 
 inline fun StoreNode.getBooleanOrPut(defaultValue: () -> Boolean): Boolean {
-    val value = getOrNull()?.toBoolean()
+    val value = get()?.toBoolean()
     return if (value == null) {
         val answer = defaultValue()
         setBoolean(answer)
@@ -23,7 +23,7 @@ inline fun StoreNode.getBooleanOrPut(defaultValue: () -> Boolean): Boolean {
 }
 
 inline fun StoreNode.getIntOrPut(defaultValue: () -> Int): Int {
-    val value = getOrNull()?.toIntOrNull()
+    val value = get()?.toIntOrNull()
     return if (value == null) {
         val answer = defaultValue()
         setInt(answer)
@@ -34,7 +34,7 @@ inline fun StoreNode.getIntOrPut(defaultValue: () -> Int): Int {
 }
 
 inline fun StoreNode.getLongOrPut(defaultValue: () -> Long): Long {
-    val value = getOrNull()?.toLongOrNull()
+    val value = get()?.toLongOrNull()
     return if (value == null) {
         val answer = defaultValue()
         setLong(answer)
@@ -45,7 +45,7 @@ inline fun StoreNode.getLongOrPut(defaultValue: () -> Long): Long {
 }
 
 inline fun StoreNode.getDoubleOrPut(defaultValue: () -> Double): Double {
-    val value = getOrNull()?.toDoubleOrNull()
+    val value = get()?.toDoubleOrNull()
     return if (value == null) {
         val answer = defaultValue()
         setDouble(answer)

@@ -35,7 +35,7 @@ class Bot(token: String, val prefix: String) {
     val musicManager: MusicManager
 
     val store: Store = try {
-        JedisStore(JedisPool(JedisPoolConfig(), "localhost")).also { it["dummy"].getOrNull() }
+        JedisStore(JedisPool(JedisPoolConfig(), "localhost")).also { it["dummy"].get() }
     } catch (e: JedisConnectionException) {
         FileStore(File("store.properties"))
     }

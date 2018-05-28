@@ -5,62 +5,32 @@ package xyz.avarel.core.store
  */
 interface StoreNode {
     /**
-     * @return The string value of this node.
-     * @throws NullPointerException if the value is null.
+     * @return The possibly null string value of this node.
      */
-    fun get(): String
+    fun get(): String?
 
     /**
-     * @return The boolean value of this node.
-     * @throws NullPointerException if the value is null.
+     * @return The possibly null boolean value of this node.
      */
-    fun getBoolean(): Boolean
+    fun getBoolean(): Boolean?
 
     /**
-     * @return The integer value of this node.
-     * @throws NullPointerException if the value is null.
+     * @return The possibly null integer value of this node.
      * @throws NumberFormatException if the value is not a valid number.
      */
-    fun getInt(): Int
+    fun getInt(): Int?
 
     /**
-     * @return The long value of this node.
-     * @throws NullPointerException if the value is null.
+     * @return The possibly null long value of this node.
      * @throws NumberFormatException if the value is not a valid number.
      */
-    fun getLong(): Long
+    fun getLong(): Long?
 
     /**
-     * @return The double value of this node.
-     * @throws NullPointerException if the value is null.
+     * @return The possibly null double value of this node.
      * @throws NumberFormatException if the value is not a valid number.
      */
-    fun getDouble(): Double
-
-    /**
-     * @return The (possibly null) string value of this node.
-     */
-    fun getOrNull(): String?
-
-    /**
-     * @return The (possibly null) boolean value of this node.
-     */
-    fun getBooleanOrNull(): Boolean?
-
-    /**
-     * @return The (possibly null) integer value of this node.
-     */
-    fun getIntOrNull(): Int?
-
-    /**
-     * @return The (possibly null) long value of this node.
-     */
-    fun getLongOrNull(): Long?
-
-    /**
-     * @return The (possibly null) double value of this node.
-     */
-    fun getDoubleOrNull(): Double?
+    fun getDouble(): Double?
 
     /**
      * Set the value of this node.

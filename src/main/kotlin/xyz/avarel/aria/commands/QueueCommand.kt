@@ -70,7 +70,7 @@ class QueueCommand : AnnotatedCommand<MessageContext> {
             return insufficientArgumentsMessage(context, "`#`, `first`, `last` or `all`")
         }
 
-        val queue = controller.scheduler.queue as LinkedList<AudioTrack>
+        val queue = controller.scheduler.queue
 
         val track = when (context.args[1]) {
             "first" -> controller.scheduler.queue.removeFirst()
@@ -100,7 +100,7 @@ class QueueCommand : AnnotatedCommand<MessageContext> {
                     }
 
                     for (i in start..end) {
-                        queue.removeAt(i - 1)
+                        controller.scheduler.remove(i - 1)
                     }
 
                     context.channel.sendEmbed("Remove Tracks") {
@@ -115,7 +115,7 @@ class QueueCommand : AnnotatedCommand<MessageContext> {
                     return invalidArgumentsMessage(context, "track number `1..${queue.size}`")
                 }
 
-                queue.removeAt(index - 1)
+                controller.scheduler.remove(index - 1)
             }
         }
 

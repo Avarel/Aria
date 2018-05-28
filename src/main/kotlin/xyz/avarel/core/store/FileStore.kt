@@ -62,7 +62,7 @@ class FileStore(private val file: File? = null): Store {
             properties.remove(key)
         }
 
-        override fun getOrNull(): String? {
+        override fun get(): String? {
             LOG.debug("Retrieving \"$key\".")
             return properties.getProperty("key")
         }
