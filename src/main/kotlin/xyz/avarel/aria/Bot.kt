@@ -54,7 +54,7 @@ class Bot(token: String, val prefix: String) {
         register(RepeatCommand())
         register(SkipCommand())
         register(SeekCommand())
-        register(FilterCommand())
+//        register(FilterCommand())
     }
 
     init {

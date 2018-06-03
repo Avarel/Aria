@@ -14,6 +14,8 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrameBufferFactory
+import com.sedmelluq.discord.lavaplayer.track.playback.NonAllocatingAudioFrameBuffer
 import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
 import xyz.avarel.aria.Bot
@@ -32,6 +34,8 @@ class MusicManager(private val bot: Bot) {
      * A factory that creates new [AudioPlayer] instances.
      */
     private val playerFactory: AudioPlayerManager = DefaultAudioPlayerManager().also {
+        it.configuration.frameBufferFactory = AudioFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
+
         it.registerSourceManager(YoutubeAudioSourceManager().apply {
             configureRequests {
                 RequestConfig.copy(it).setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
