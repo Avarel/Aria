@@ -1,8 +1,10 @@
 package xyz.avarel.aria.music
 
+import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
-import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame
+import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame
 import net.dv8tion.jda.core.audio.AudioSendHandler
+import java.nio.ByteBuffer
 
 /**
  * Interface used to send audio to Discord through JDA, specialized for LavaPlayer.
@@ -10,28 +12,14 @@ import net.dv8tion.jda.core.audio.AudioSendHandler
  *        Audio player to wrap.
  */
 class AudioPlayerSendHandler(private val audioPlayer: AudioPlayer) : AudioSendHandler {
-    private var lastFrame: AudioFrame? = null
-
-    override fun canProvide(): Boolean {
-        if (lastFrame == null) {
-            lastFrame = audioPlayer.provide()
-        }
-
-        return lastFrame != null
+    private var lastFrame = MutableAudioFrame().also {
+        it.format = StandardAudioDataFormats.DISCORD_OPUS
+        it.setBuffer(ByteBuffer.allocate(it.format.maximumChunkSize()))
     }
 
-    override fun provide20MsAudio(): ByteArray? {
-        if (lastFrame == null) {
-            lastFrame = audioPlayer.provide()
-        }
+    override fun canProvide() = audioPlayer.provide(lastFrame)
 
-        val data = lastFrame?.data
-        lastFrame = null
+    override fun provide20MsAudio() = lastFrame.data!!
 
-        return data
-    }
-
-    override fun isOpus(): Boolean {
-        return true
-    }
+    override fun isOpus() = true
 }
