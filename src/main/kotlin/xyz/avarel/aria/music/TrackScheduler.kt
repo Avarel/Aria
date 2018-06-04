@@ -61,12 +61,11 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
         queue.iterator().apply {
             withIndex().forEach { (i, item) ->
                 if (i == index) {
-                    this.remove()
+                    remove()
                     return item
                 }
             }
         }
-        queue.descendingIterator()
         throw IllegalStateException()
     }
 
@@ -74,7 +73,10 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
      * Start the next track, stopping the current one if it is playing.
      */
     fun nextTrack() {
-        if (queue.isEmpty()) return
+        if (queue.isEmpty()) {
+            controller.player.stopTrack()
+            return
+        }
         val track = queue.poll()
         controller.player.startTrack(track, false)
         LOG.debug("${track.info.title} playback started.")

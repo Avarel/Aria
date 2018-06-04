@@ -3,7 +3,10 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.aria.utils.requirePlayingTrackMessage
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.AnnotatedCommand
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.sendEmbed
 
 @CommandInfo(
         aliases = ["skip"],
