@@ -57,7 +57,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
     }
 
     fun remove(index: Int): AudioTrack {
-        if (index >= queue.size) throw IndexOutOfBoundsException(index)
+        if (index >= queue.size) throw IndexOutOfBoundsException("Index out of range: $index, size: ${queue.size}")
         queue.iterator().apply {
             withIndex().forEach { (i, item) ->
                 if (i == index) {

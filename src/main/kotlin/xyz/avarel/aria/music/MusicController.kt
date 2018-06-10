@@ -1,6 +1,5 @@
 package xyz.avarel.aria.music
 
-import com.github.natanbc.timescale.TimescalePcmAudioFilter
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
@@ -31,7 +30,7 @@ class MusicController(
 ) {
     companion object {
         val LOG = LoggerFactory.getLogger(MusicController::class.java)!!
-        val defaultTimescale = TimescaleSettings()
+//        val defaultTimescale = TimescaleSettings()
     }
 
     init {
@@ -171,27 +170,27 @@ class MusicController(
         }
     }
 
-    var timescaleSettings = TimescaleSettings()
-        private set
+//    var timescaleSettings = TimescaleSettings()
+//        private set
 
-    private var timescale: TimescalePcmAudioFilter? = null
-
-    fun enableFilter() {
-        player.setFilterFactory { _, format, output ->
-            timescale = TimescalePcmAudioFilter(format.channelCount, output, format.sampleRate, 1.0)
-            timescale!!.also(timescaleSettings::applyTo)
-            listOf(timescale)
-        }
-    }
-
-    fun disableFilter() {
-        timescaleSettings = defaultTimescale.copy()
-        timescale?.also(timescaleSettings::applyTo)
-        player.setFilterFactory(null)
-    }
-
-    fun updateFilter(settings: TimescaleSettings) {
-        timescaleSettings = settings
-        timescale?.also(settings::applyTo)
-    }
+//    private var timescale: TimescalePcmAudioFilter? = null
+//
+//    fun enableFilter() {
+//        player.setFilterFactory { _, format, output ->
+//            timescale = TimescalePcmAudioFilter(format.channelCount, output, format.sampleRate, 1.0)
+//            timescale!!.also(timescaleSettings::applyTo)
+//            listOf(timescale)
+//        }
+//    }
+//
+//    fun disableFilter() {
+//        timescaleSettings = defaultTimescale.copy()
+//        timescale?.also(timescaleSettings::applyTo)
+//        player.setFilterFactory(null)
+//    }
+//
+//    fun updateFilter(settings: TimescaleSettings) {
+//        timescaleSettings = settings
+//        timescale?.also(settings::applyTo)
+//    }
 }
