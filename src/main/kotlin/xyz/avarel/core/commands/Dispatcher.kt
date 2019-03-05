@@ -1,10 +1,12 @@
 package xyz.avarel.core.commands
 
-import kotlinx.coroutines.experimental.DefaultDispatcher
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.channels.actor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.actor
 import org.slf4j.LoggerFactory
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Dispatches a command based on the incoming context [CTX].
@@ -24,10 +26,12 @@ import kotlin.coroutines.experimental.CoroutineContext
  *         The executor service.
  * @author Avarel
  */
+@ObsoleteCoroutinesApi
 class Dispatcher<in CTX: Context, in C: Command<CTX>>(
+        scope: CoroutineScope,
         private val registry: CommandRegistry<C>,
-        private val context: CoroutineContext = DefaultDispatcher
-): SendChannel<CTX> by actor<CTX>(context, block = {
+        private val context: CoroutineContext = GlobalScope.coroutineContext
+): SendChannel<CTX> by scope.actor<CTX>(context, block = {
     for (ctx in channel) {
         registry[ctx.label]?.let { cmd ->
             try {

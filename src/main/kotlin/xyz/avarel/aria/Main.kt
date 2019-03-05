@@ -3,7 +3,7 @@ package xyz.avarel.aria
 import java.io.File
 import java.util.*
 
-fun main(args: Array<String>) {
+fun main() {
     val properties = Properties()
     val file = File("bot.properties")
     file.inputStream().use(properties::load)
