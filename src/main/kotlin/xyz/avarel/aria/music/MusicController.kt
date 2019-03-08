@@ -1,9 +1,10 @@
 package xyz.avarel.aria.music
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.audio.AudioSendHandler
 import net.dv8tion.jda.core.entities.Guild
@@ -94,8 +95,8 @@ class MusicController(
         if (activate) {
             if (leaveJob == null) {
                 LOG.debug("Activate auto-destroy music controller for $guild.")
-                leaveJob = launch {
-                    delay(30, TimeUnit.SECONDS)
+                leaveJob = GlobalScope.launch {
+                    delay(30)
                     destroy()
                 }
             }

@@ -1,6 +1,8 @@
 package xyz.avarel.aria
 
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
@@ -26,6 +28,7 @@ import java.io.File
  *
  * @author Avarel
  */
+
 class Bot(token: String, val prefix: String) {
     companion object {
         val LOG = LoggerFactory.getLogger(Bot::class.java)!!
@@ -60,7 +63,8 @@ class Bot(token: String, val prefix: String) {
     init {
         LOG.info("${commandRegistry.entries.size} commands registered.")
 
-        val dispatcher = Dispatcher(commandRegistry)
+        @Suppress("EXPERIMENTAL_API_USAGE")
+        val dispatcher = Dispatcher(GlobalScope, commandRegistry)
 
         val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
 
