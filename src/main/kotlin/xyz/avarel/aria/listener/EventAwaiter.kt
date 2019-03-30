@@ -1,12 +1,11 @@
 package xyz.avarel.aria.listener
 
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.suspendCancellableCoroutine
 import net.dv8tion.jda.core.events.Event
 import net.dv8tion.jda.core.hooks.EventListener
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.experimental.Continuation
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class EventAwaiter : EventListener {
     private val map: MutableMap<Class<*>, MutableSet<AwaitingPoint<Event>>> = ConcurrentHashMap()

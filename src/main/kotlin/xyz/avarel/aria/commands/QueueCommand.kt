@@ -1,20 +1,30 @@
 package xyz.avarel.aria.commands
 
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.*
 import xyz.avarel.aria.music.MusicController
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
-import java.util.*
 import java.util.regex.Pattern
 
-@CommandInfo(
-        aliases = ["queue", "q"],
-        description = "Show the music queue.",
-        usage = "[#] | remove (#|start..end|first|last|all)"
-)
-class QueueCommand : AnnotatedCommand<MessageContext> {
+class QueueCommand : Command<MessageContext> {
+    override val aliases = arrayOf("queue", "q")
+
+    override val info = CommandInfo(
+            "Queue Command",
+            Description(
+                    "Show the music queue.",
+                    "This command can also remove specific songs in the queue."
+            ),
+            Usage(Argument.Optional(Argument.Number)),
+            Usage(Argument.Specific("remove"), Argument.Options(
+                    Argument.Number,
+                    Argument.Specific("start..end"),
+                    Argument.Specific("first"),
+                    Argument.Specific("last")
+            ))
+    )
+
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

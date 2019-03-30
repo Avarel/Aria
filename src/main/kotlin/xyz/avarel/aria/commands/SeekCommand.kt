@@ -5,11 +5,34 @@ import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 
-@CommandInfo(
-        aliases = ["seek", "jump"],
-        description = "Seek to a specific time within the track"
-)
-class SeekCommand : AnnotatedCommand<MessageContext> {
+class SeekCommand : Command<MessageContext> {
+    override val aliases = arrayOf("seek", "jump")
+
+    override val info = CommandInfo(
+            "Seek Command",
+            Description(
+                    "Seek to a specific time within the track."
+            ),
+            Usage(Argument.Specific("start")),
+            Usage(Argument.Specific("beginning")),
+            Usage(
+                    Argument.Options(
+                            Argument.Specific("plus"),
+                            Argument.Specific("forward"),
+                            Argument.Specific("+")
+                    ),
+                    Argument.Timestamp
+            ),
+            Usage(
+                    Argument.Options(
+                            Argument.Specific("minus"),
+                            Argument.Specific("backward"),
+                            Argument.Specific("-")
+                    ),
+                    Argument.Timestamp
+            )
+    )
+
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

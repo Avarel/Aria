@@ -3,11 +3,14 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.*
 
-@CommandInfo(
-        aliases = ["help", "info", "i", "h"],
-        description = "General information about the bot."
-)
-class InfoCommand : AnnotatedCommand<MessageContext> {
+class InfoCommand : Command<MessageContext> {
+    override val aliases = arrayOf("help", "info", "i", "h")
+
+    override val info = CommandInfo(
+            "Information Command",
+            Description("Get general information about the bot.")
+    )
+
     override suspend fun invoke(context: MessageContext) {
         context.channel.sendEmbed("Information") {
             desc { "The bot's prefix is `${context.bot.prefix}`." }
@@ -16,7 +19,7 @@ class InfoCommand : AnnotatedCommand<MessageContext> {
                     append('`')
                     append(cmd.aliases.first())
                     append("` – ")
-                    append(cmd.description)
+                    append(cmd.info.description.text)
                     append("\n")
                 }
             }

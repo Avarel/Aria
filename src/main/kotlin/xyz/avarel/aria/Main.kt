@@ -1,5 +1,6 @@
 package xyz.avarel.aria
 
+import io.reactiverse.pgclient.PgClient
 import java.io.File
 import java.util.*
 

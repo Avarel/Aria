@@ -43,8 +43,8 @@ class JedisStore(private val pool: JedisPool): Store {
 
         override fun get(): String? {
             LOG.debug("Retrieving \"$key\".")
-            pool.resource.use { client ->
-                return client[key]
+            return pool.resource.use { client ->
+                client[key]
             }
         }
 

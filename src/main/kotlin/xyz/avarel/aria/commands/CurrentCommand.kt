@@ -5,11 +5,14 @@ import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 
-@CommandInfo(
-        aliases = ["current", "nowplaying", "np"],
-        description = "Show currently playing music track."
-)
-class CurrentCommand : AnnotatedCommand<MessageContext> {
+class CurrentCommand : Command<MessageContext> {
+    override val aliases = arrayOf("current", "nowplaying", "np")
+
+    override val info = CommandInfo(
+            "Now Playing Command",
+            Description("Show currently playing music track.")
+    )
+
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

@@ -6,12 +6,15 @@ import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 
-@CommandInfo(
-        aliases = ["play", "p"],
-        description = "Play some music.",
-        usage = "(url|search)"
-)
-class PlayCommand : AnnotatedCommand<MessageContext> {
+class PlayCommand : Command<MessageContext> {
+    override val aliases = arrayOf("play", "p")
+
+    override val info = CommandInfo(
+            "Play Music Command",
+            Description("Play some music."),
+            Usage(Argument.Required(Argument.Options(Argument.URL, Argument.Text)))
+    )
+
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

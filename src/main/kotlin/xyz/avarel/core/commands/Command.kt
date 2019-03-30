@@ -12,15 +12,7 @@ interface Command<in T> {
      */
     val aliases: Array<String>
 
-    /**
-     * Usage of the command.
-     */
-    val usage: String get() = ""
-
-    /**
-     * Description of the command.
-     */
-    val description: String get() = "No desc."
+    val info: CommandInfo
 
     /**
      * The implementation of what happens when the command

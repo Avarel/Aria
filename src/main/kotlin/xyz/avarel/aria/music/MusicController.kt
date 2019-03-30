@@ -36,6 +36,10 @@ class MusicController(
 
     init {
         LOG.debug("Created a music controller for $guild.")
+
+        bot.store[guild.id, "music", "volume"].getInt()?.let { volume ->
+            player.volume = volume
+        }
     }
 
     /**

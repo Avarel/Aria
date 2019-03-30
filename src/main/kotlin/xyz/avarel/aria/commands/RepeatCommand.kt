@@ -6,11 +6,19 @@ import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.aria.utils.tryOrNull
 import xyz.avarel.core.commands.*
 
-@CommandInfo(
-        aliases = ["repeat"],
-        description = "Change the repeat mode."
-)
-class RepeatCommand : AnnotatedCommand<MessageContext> {
+class RepeatCommand : Command<MessageContext> {
+    override val aliases = arrayOf("repeat")
+
+    override val info = CommandInfo(
+            "Queue Command",
+            Description(
+                    "Change the repeat mode."
+            ),
+            Usage(Argument.Specific("none")),
+            Usage(Argument.Specific("song")),
+            Usage(Argument.Specific("queue"))
+    )
+
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

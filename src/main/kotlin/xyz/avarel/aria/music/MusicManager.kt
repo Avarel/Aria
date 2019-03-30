@@ -20,7 +20,9 @@ import org.apache.http.client.config.CookieSpecs
 import org.apache.http.client.config.RequestConfig
 import xyz.avarel.aria.Bot
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.experimental.suspendCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * Manage creation and handling of [MusicController] instances.
@@ -37,8 +39,8 @@ class MusicManager(private val bot: Bot) {
         it.configuration.frameBufferFactory = AudioFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
 
         it.registerSourceManager(YoutubeAudioSourceManager().apply {
-            configureRequests {
-                RequestConfig.copy(it).setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
+            configureRequests { config ->
+                RequestConfig.copy(config).setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
             }
         })
         it.registerSourceManager(SoundCloudAudioSourceManager())
