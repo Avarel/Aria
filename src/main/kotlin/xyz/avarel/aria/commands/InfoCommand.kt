@@ -6,10 +6,9 @@ import xyz.avarel.core.commands.*
 class InfoCommand : Command<MessageContext> {
     override val aliases = arrayOf("help", "info", "i", "h")
 
-    override val info = CommandInfo(
-            "Information Command",
-            Description("Get general information about the bot.")
-    )
+    override val info = info("Information Command") {
+        desc { "Get general information about the bot." }
+    }
 
     override suspend fun invoke(context: MessageContext) {
         context.channel.sendEmbed("Information") {

@@ -8,7 +8,7 @@
 //
 //@CommandInfo(
 //        aliases = ["filter"],
-//        description = "Change the music filter."
+//        desc = "Change the music filter."
 //)
 //class FilterCommand : AnnotatedCommand<MessageContext> {
 //    override suspend operator fun invoke(context: MessageContext) {

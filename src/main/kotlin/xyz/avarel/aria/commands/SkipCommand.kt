@@ -8,10 +8,9 @@ import xyz.avarel.core.commands.*
 class SkipCommand : Command<MessageContext> {
     override val aliases = arrayOf("skip")
 
-    override val info = CommandInfo(
-            "Skip Command",
-            Description("Skip the current track.")
-    )
+    override val info = info("Skip Command") {
+        desc { "Skip the current track." }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

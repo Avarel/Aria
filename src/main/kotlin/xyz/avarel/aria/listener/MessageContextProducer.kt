@@ -11,11 +11,11 @@ import xyz.avarel.core.commands.Dispatcher
 import java.util.ArrayList
 
 /**
- * Specific implementation where an [GuildMessageReceivedEvent] is filtered
+ * Label implementation where an [GuildMessageReceivedEvent] is filtered
  * from the event stream produced by [JDA].
  *
  * The event is then processed through checking for the prefix, stripping
- * the arguments, and parsing the arguments into the [MessageContext] class.
+ * the usages, and parsing the usages into the [MessageContext] class.
  *
  * The message context is then published to the stream.
  *
@@ -23,6 +23,7 @@ import java.util.ArrayList
  */
 class MessageContextProducer(
         private val bot: Bot,
+        @Suppress("EXPERIMENTAL_API_USAGE")
         private val dispatcher: Dispatcher<MessageContext, Command<MessageContext>>
 ) : EventListener {
     private val argumentPattern = Regex("`{3}(?:\\w+\\n)?([\\s\\S]*?)`{3}|`([^`]+)`|(\\S+)")

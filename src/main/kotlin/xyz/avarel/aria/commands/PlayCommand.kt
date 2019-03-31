@@ -9,11 +9,17 @@ import java.time.Duration
 class PlayCommand : Command<MessageContext> {
     override val aliases = arrayOf("play", "p")
 
-    override val info = CommandInfo(
-            "Play Music Command",
-            Description("Play some music."),
-            Usage(Argument.Required(Argument.Options(Argument.URL, Argument.Text)))
-    )
+    override val info = info("Play Music Command") {
+        desc { "Play some music." }
+        usage {
+            required {
+                options {
+                    url()
+                    text()
+                }
+            }
+        }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

@@ -7,10 +7,9 @@ import xyz.avarel.core.commands.*
 class PingCommand : Command<MessageContext> {
     override val aliases = arrayOf("ping")
 
-    override val info = CommandInfo(
-            "Ping Command",
-            Description("Get the ping of the bot.")
-    )
+    override val info = info("Ping Command") {
+        desc { "Get the ping of the bot." }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val current = System.currentTimeMillis()

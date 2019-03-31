@@ -7,10 +7,9 @@ import xyz.avarel.core.commands.*
 class JoinCommand : Command<MessageContext> {
     override val aliases = arrayOf("join", "j")
 
-    override val info = CommandInfo(
-            "Join Music Channel Command",
-            Description("Let the bot join your current voice channel.")
-    )
+    override val info = info("Join Music Channel Command") {
+        desc { "Let the bot join your current voice channel." }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val vc = context.member.voiceState.channel

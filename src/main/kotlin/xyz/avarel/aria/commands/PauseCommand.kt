@@ -8,10 +8,9 @@ import xyz.avarel.core.commands.*
 class PauseCommand : Command<MessageContext> {
     override val aliases = arrayOf("pause")
 
-    override val info = CommandInfo(
-            "Pause Music Command",
-            Description("Pause the music player.")
-    )
+    override val info = info("Pause Command") {
+        desc { "Pause the music player." }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

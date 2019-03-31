@@ -8,30 +8,31 @@ import java.time.Duration
 class SeekCommand : Command<MessageContext> {
     override val aliases = arrayOf("seek", "jump")
 
-    override val info = CommandInfo(
-            "Seek Command",
-            Description(
-                    "Seek to a specific time within the track."
-            ),
-            Usage(Argument.Specific("start")),
-            Usage(Argument.Specific("beginning")),
-            Usage(
-                    Argument.Options(
-                            Argument.Specific("plus"),
-                            Argument.Specific("forward"),
-                            Argument.Specific("+")
-                    ),
-                    Argument.Timestamp
-            ),
-            Usage(
-                    Argument.Options(
-                            Argument.Specific("minus"),
-                            Argument.Specific("backward"),
-                            Argument.Specific("-")
-                    ),
-                    Argument.Timestamp
-            )
-    )
+    override val info = info("Seek Command") {
+        desc { "Seek to a specific time within the track." }
+        usage {
+            options {
+                label("start")
+                label("beginning")
+            }
+        }
+        usage {
+            options {
+                label("plus")
+                label("forward")
+                label("+")
+            }
+            required { timestamp() }
+        }
+        usage {
+            options {
+                label("minus")
+                label("backward")
+                label("-")
+            }
+            required { timestamp() }
+        }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

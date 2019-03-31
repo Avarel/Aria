@@ -8,11 +8,14 @@ import xyz.avarel.core.commands.*
 class VolumeCommand : Command<MessageContext> {
     override val aliases = arrayOf("volume", "v")
 
-    override val info = CommandInfo(
-            "Volume Command",
-            Description("Set the volume of the music player."),
-            Usage(Argument.Percentage)
-    )
+    override val info = info("Volume Command") {
+        desc { "Set the volume of the music player." }
+        usage {
+            optional {
+                range(0, 150)
+            }
+        }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

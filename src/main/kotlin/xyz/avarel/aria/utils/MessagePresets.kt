@@ -18,7 +18,7 @@ fun requirePlayingTrackMessage(context: MessageContext) {
 
 fun insufficientArgumentsMessage(context: MessageContext, type: String) {
     context.channel.sendEmbed("Insufficient Arguments") {
-        desc { "Please include $type in the arguments." }
+        desc { "Please include $type in the usage." }
     }.queue()
 }
 

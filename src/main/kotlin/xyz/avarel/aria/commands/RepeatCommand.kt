@@ -9,15 +9,18 @@ import xyz.avarel.core.commands.*
 class RepeatCommand : Command<MessageContext> {
     override val aliases = arrayOf("repeat")
 
-    override val info = CommandInfo(
-            "Queue Command",
-            Description(
-                    "Change the repeat mode."
-            ),
-            Usage(Argument.Specific("none")),
-            Usage(Argument.Specific("song")),
-            Usage(Argument.Specific("queue"))
-    )
+    override val info = info("Repeat Command") {
+        desc { "Change the repeat mode of the music player." }
+        usage {
+            required {
+                options {
+                    label("none")
+                    label("song")
+                    label("queue")
+                }
+            }
+        }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

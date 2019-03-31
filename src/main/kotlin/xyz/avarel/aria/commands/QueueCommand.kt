@@ -10,20 +10,21 @@ import java.util.regex.Pattern
 class QueueCommand : Command<MessageContext> {
     override val aliases = arrayOf("queue", "q")
 
-    override val info = CommandInfo(
-            "Queue Command",
-            Description(
-                    "Show the music queue.",
-                    "This command can also remove specific songs in the queue."
-            ),
-            Usage(Argument.Optional(Argument.Number)),
-            Usage(Argument.Specific("remove"), Argument.Options(
-                    Argument.Number,
-                    Argument.Specific("start..end"),
-                    Argument.Specific("first"),
-                    Argument.Specific("last")
-            ))
-    )
+    override val info = info("Queue Command") {
+        desc { "Show the music queue." }
+        usage {
+            optional { number() }
+        }
+        usage {
+            label("remove")
+            options {
+                number()
+                label("start..end")
+                label("first")
+                label("last")
+            }
+        }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)

@@ -7,10 +7,9 @@ import xyz.avarel.core.commands.*
 class LeaveCommand : Command<MessageContext> {
     override val aliases = arrayOf("leave", "l")
 
-    override val info = CommandInfo(
-            "Leave Music Channel Command",
-            Description("Make the bot leave its current voice channel.")
-    )
+    override val info = info("Leave Music Channel Command") {
+        desc { "Make the bot leave its current voice channel." }
+    }
 
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
