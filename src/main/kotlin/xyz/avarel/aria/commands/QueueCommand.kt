@@ -39,7 +39,7 @@ class QueueCommand : Command<MessageContext> {
 
         context.channel.sendEmbed("Music Queue") {
             descBuilder {
-                controller.scheduler.queue.forEachIndexed { index, audioTrack ->
+                controller.queue.forEachIndexed { index, audioTrack ->
                     append('`')
                     append(index + 1)
                     append("` `")
@@ -50,7 +50,7 @@ class QueueCommand : Command<MessageContext> {
                 }
             }
 
-            field("Size", true) { controller.scheduler.queue.size.toString() }
+            field("Size", true) { controller.queue.size.toString() }
             field("Duration", true) {
                 val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
                 Duration.ofMillis(duration).formatDuration()
@@ -62,10 +62,10 @@ class QueueCommand : Command<MessageContext> {
     }
 
     private fun clear(context: MessageContext, controller: MusicController) {
-        val size = controller.scheduler.queue.size
+        val size = controller.queue.size
         if (size == 0) return errorMessage(context, "Queue is empty.")
 
-        controller.scheduler.queue.clear()
+        controller.queue.clear()
 
         context.channel.sendEmbed("Music Queue") {
             desc { "Cleared all $size entries from the music queue." }
@@ -75,17 +75,17 @@ class QueueCommand : Command<MessageContext> {
     private val pattern = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
 
     private fun remove(context: MessageContext, controller: MusicController) {
-        if (controller.scheduler.queue.isEmpty()) return errorMessage(context, "Queue is empty.")
+        if (controller.queue.isEmpty()) return errorMessage(context, "Queue is empty.")
 
         if (context.args.size < 2) {
             return insufficientArgumentsMessage(context, "`#`, `first`, `last` or `all`")
         }
 
-        val queue = controller.scheduler.queue
+        val queue = controller.queue
 
         val track = when (context.args[1]) {
-            "first" -> controller.scheduler.queue.removeFirst()
-            "last" -> controller.scheduler.queue.removeLast()
+            "first" -> controller.queue.removeFirst()
+            "last" -> controller.queue.removeLast()
             "all" -> return clear(context, controller)
             else -> {
                 val arg = context.args.subList(1, context.args.size).joinToString(" ")

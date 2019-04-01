@@ -51,6 +51,7 @@ class MessageContextProducer(
             if (event.message.contentRaw.startsWith(bot.prefix)) {
                 val list = stringSplit(event.message.contentRaw)
 
+                @Suppress("EXPERIMENTAL_API_USAGE")
                 dispatcher.offer(MessageContext(bot, event.message, list[0].substring(bot.prefix.length).trim(), list.subList(1, list.size)))
             }
         }

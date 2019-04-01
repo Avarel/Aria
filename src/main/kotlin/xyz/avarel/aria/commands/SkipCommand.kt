@@ -17,7 +17,7 @@ class SkipCommand : Command<MessageContext> {
                 ?: return requireMusicControllerMessage(context)
         val track = controller.player.playingTrack ?: return requirePlayingTrackMessage(context)
 
-        controller.scheduler.nextTrack()
+        controller.skip()
 
         context.channel.sendEmbed("Skip") {
             desc { "Skipped **${track.info.title}**." }

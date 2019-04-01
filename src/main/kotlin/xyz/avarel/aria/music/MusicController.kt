@@ -1,6 +1,7 @@
 package xyz.avarel.aria.music
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -11,7 +12,7 @@ import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
-import java.util.concurrent.TimeUnit
+import java.util.*
 
 /**
  * Handles music playback for a specific guild.
@@ -175,27 +176,24 @@ class MusicController(
         }
     }
 
-//    var timescaleSettings = TimescaleSettings()
-//        private set
+    /**
+     * Volume of the music player.
+     */
+    var volume: Int
+        get() = player.volume
+        set(value) { player.volume = value }
 
-//    private var timescale: TimescalePcmAudioFilter? = null
-//
-//    fun enableFilter() {
-//        player.setFilterFactory { _, format, output ->
-//            timescale = TimescalePcmAudioFilter(format.channelCount, output, format.sampleRate, 1.0)
-//            timescale!!.also(timescaleSettings::applyTo)
-//            listOf(timescale)
-//        }
-//    }
-//
-//    fun disableFilter() {
-//        timescaleSettings = defaultTimescale.copy()
-//        timescale?.also(timescaleSettings::applyTo)
-//        player.setFilterFactory(null)
-//    }
-//
-//    fun updateFilter(settings: TimescaleSettings) {
-//        timescaleSettings = settings
-//        timescale?.also(settings::applyTo)
-//    }
+    /**
+     * Repeat mode of the player. [RepeatMode]
+     */
+    var repeatMode: RepeatMode
+        get() = scheduler.repeatMode
+        set(value) { scheduler.repeatMode = value }
+
+    val queue: Deque<AudioTrack>
+        get() = scheduler.queue
+
+    fun skip() {
+        scheduler.nextTrack()
+    }
 }

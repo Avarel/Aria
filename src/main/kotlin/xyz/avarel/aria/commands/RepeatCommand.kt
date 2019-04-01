@@ -13,11 +13,7 @@ class RepeatCommand : Command<MessageContext> {
         desc { "Change the repeat mode of the music player." }
         usage {
             required {
-                options {
-                    label("none")
-                    label("song")
-                    label("queue")
-                }
+                options<RepeatMode>()
             }
         }
     }
@@ -41,11 +37,11 @@ class RepeatCommand : Command<MessageContext> {
             return
         }
 
-        controller.scheduler.repeatMode = repeat
+        controller.repeatMode = repeat
 
         context.channel.sendEmbed("Repeat") {
             desc {
-                when (controller.scheduler.repeatMode) {
+                when (controller.repeatMode) {
                     RepeatMode.NONE -> "The bot will not repeat songs."
                     RepeatMode.QUEUE -> "The bot will repeat the playlist."
                     RepeatMode.SONG -> "The bot will repeat the current song."

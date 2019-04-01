@@ -2,15 +2,11 @@ package xyz.avarel.aria
 
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.slf4j.LoggerFactory
-import redis.clients.jedis.JedisPool
-import redis.clients.jedis.JedisPoolConfig
-import redis.clients.jedis.exceptions.JedisConnectionException
 import xyz.avarel.aria.commands.*
 import xyz.avarel.aria.listener.MessageContextProducer
 import xyz.avarel.aria.listener.VoiceListener
@@ -19,7 +15,6 @@ import xyz.avarel.core.commands.Command
 import xyz.avarel.core.commands.Dispatcher
 import xyz.avarel.core.commands.impl.DefaultCommandRegistry
 import xyz.avarel.core.store.FileStore
-import xyz.avarel.core.store.JedisStore
 import xyz.avarel.core.store.Store
 import java.io.File
 
@@ -37,11 +32,7 @@ class Bot(token: String, val prefix: String) {
     val shardManager: ShardManager
     val musicManager: MusicManager
 
-    val store: Store = try {
-        JedisStore(JedisPool(JedisPoolConfig(), "localhost")).also { it["dummy"].get() }
-    } catch (e: JedisConnectionException) {
-        FileStore(File("store.properties"))
-    }
+    val store: Store = FileStore(File("store.properties"))
 
     val commandRegistry = DefaultCommandRegistry<Command<MessageContext>>().apply {
         register(InfoCommand())
@@ -57,7 +48,6 @@ class Bot(token: String, val prefix: String) {
         register(RepeatCommand())
         register(SkipCommand())
         register(SeekCommand())
-//        register(FilterCommand())
     }
 
     init {

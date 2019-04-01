@@ -39,7 +39,13 @@ class ArgumentBuilder {
     }
 
     inline fun options(block: ArgumentBuilder.() -> Unit) {
-        list += Argument.Optional(ArgumentBuilder().apply(block).build(options = true))
+        list += ArgumentBuilder().apply(block).build(options = true)
+    }
+
+    inline fun <reified T : Enum<T>> options() {
+        options {
+            enumValues<T>().map{ it.name.toLowerCase() }.forEach(this::label)
+        }
     }
 
     inline fun required(block: ArgumentBuilder.() -> Unit) {
