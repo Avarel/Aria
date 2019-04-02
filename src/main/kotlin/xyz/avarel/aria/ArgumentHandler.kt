@@ -3,6 +3,8 @@ package xyz.avarel.aria
 import xyz.avarel.aria.utils.toDurationOrNull
 import java.time.Duration
 import java.util.regex.Pattern
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 private val pattern = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
 
@@ -11,39 +13,37 @@ class ArgumentHandler(val list: List<String>) {
 
     fun hasNext() = index < list.size
 
-    fun string(type: String = "string", consumeRemaining: Boolean = false): String {
-        return if (consumeRemaining) {
-            list.subList(index, list.size).joinToString(" ")
-        } else {
-            list.getOrNull(index++) ?: throw ArgumentError.Insufficient(index--, type)
+    fun string(type: String = "String", consumeRemaining: Boolean = false): String {
+        return when {
+            consumeRemaining -> list.subList(index, list.size).joinToString(" ")
+            !hasNext() -> throw ArgumentError.Insufficient(index--, type)
+            else -> list[index]
         }
     }
 
     fun number(): Int {
-        val string = string("number")
-        return string.toIntOrNull() ?: throw ArgumentError.Illegal(index--, "number", string)
+        return simple("Number", String::toIntOrNull)
     }
 
     fun numberRange(low: Int, high: Int): Int {
-        val typeName = "number $low..$high"
-        val string = string(typeName)
-        return string.toIntOrNull()?.coerceIn(low, high) ?: throw ArgumentError.Illegal(index--, typeName, string)
+        return simple("Number ($low..$high)") { it.toIntOrNull()?.coerceIn(low, high) }
     }
 
     fun decimal(): Double {
-        val string = string("decimal")
-        return string.toDoubleOrNull() ?: throw ArgumentError.Illegal(index--, "decimal", string)
+        return simple("Decimal", String::toDoubleOrNull)
     }
 
     fun decimalRange(low: Double, high: Double): Double {
-        val typeName = "decimal $low..$high"
-        val string = string(typeName)
-        return string.toDoubleOrNull()?.coerceIn(low, high) ?: throw ArgumentError.Illegal(index--, typeName, string)
+        return simple("Decimal ($low..$high)") { it.toDoubleOrNull()?.coerceIn(low, high) }
     }
 
     fun duration(): Duration {
-        val string = string("timestamp")
-        return string.toDurationOrNull() ?: throw ArgumentError.Illegal(index--, "timestamp [[hh:]mm:]ss", string)
+        return simple("Timestamp [[hh:]mm:]ss", String::toDurationOrNull)
+    }
+
+    private inline fun <T> simple(typeName: String, block: (String) -> T?): T {
+        val string = string(typeName)
+        return block(string) ?: throw ArgumentError.Illegal(index--, typeName, string)
     }
 
     inline fun <reified T: Enum<T>> enum(

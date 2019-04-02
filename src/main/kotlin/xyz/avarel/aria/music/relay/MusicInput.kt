@@ -1,3 +1,5 @@
+@file:JvmMultifileClass
+
 package xyz.avarel.aria.music.relay
 
 abstract class MusicInput

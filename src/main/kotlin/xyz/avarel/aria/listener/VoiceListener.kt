@@ -12,7 +12,7 @@ import xyz.avarel.aria.Bot
 
 class VoiceListener(private val bot: Bot) : EventListener {
     companion object {
-        val LOG = LoggerFactory.getLogger(VoiceListener::class.java)
+        val LOG = LoggerFactory.getLogger(VoiceListener::class.java)!!
     }
 
     override fun onEvent(event: Event) {

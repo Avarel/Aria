@@ -6,6 +6,7 @@ import net.dv8tion.jda.core.entities.MessageEmbed
 import net.dv8tion.jda.core.entities.TextChannel
 import net.dv8tion.jda.core.requests.restaction.MessageAction
 import java.awt.Color
+import javax.annotation.CheckReturnValue
 
 /**
  * Builds new embed by populating newly created [EmbedBuilder] using provided [block]
@@ -19,6 +20,7 @@ inline fun buildEmbed(title: String? = null, url: String? = null, block: EmbedBu
  * Builds new embed by populating newly created [EmbedBuilder] using provided [block]
  * and then creating a [MessageAction] from it.
  */
+@CheckReturnValue
 inline fun MessageChannel.sendEmbed(title: String? = null, url: String? = null, block: EmbedBuilder.() -> Unit): MessageAction {
     return this.sendMessage(buildEmbed(title, url) {
         if (this@sendEmbed is TextChannel) {

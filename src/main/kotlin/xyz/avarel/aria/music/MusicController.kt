@@ -28,7 +28,7 @@ class MusicController(
         val bot: Bot,
         val manager: MusicManager,
         val player: AudioPlayer,
-        val guild: Guild
+        val guild: Guild //TODO uncouple this
 ) {
     companion object {
         val LOG = LoggerFactory.getLogger(MusicController::class.java)!!

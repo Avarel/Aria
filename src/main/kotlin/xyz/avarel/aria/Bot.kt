@@ -8,6 +8,7 @@ import net.dv8tion.jda.core.entities.Game
 import net.dv8tion.jda.core.utils.SessionControllerAdapter
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.commands.*
+import xyz.avarel.aria.listener.EventAwaiter
 import xyz.avarel.aria.listener.MessageContextProducer
 import xyz.avarel.aria.listener.VoiceListener
 import xyz.avarel.aria.music.MusicManager
@@ -32,6 +33,8 @@ class Bot(token: String, val prefix: String) {
     val musicManager: MusicManager
 
     val store: Store = FileStore(File("store.properties"))
+
+    val waiter: EventAwaiter = EventAwaiter()
 
     val commandRegistry = DefaultCommandRegistry<Command<MessageContext>>().apply {
         register(InfoCommand())
@@ -95,6 +98,7 @@ class Bot(token: String, val prefix: String) {
                     append(it)
                 }
                 appendln()
+
                 val index = ctx.label.length + ctx.arguments.subList(0, e.position - 1).sumBy { it.length + 1 } + 1
                 repeat(index) {
                     append(' ')
@@ -103,7 +107,7 @@ class Bot(token: String, val prefix: String) {
                     is ArgumentError.Illegal -> {
                         val actual = ctx.arguments[e.position - 1]
                         when (actual.length) {
-                            0, 1 -> append("^ ")
+                            0, 1 -> append("|")
                             else -> {
                                 append('└')
                                 repeat(actual.length - 2) {
@@ -123,13 +127,13 @@ class Bot(token: String, val prefix: String) {
             field("Position", true) { e.position.toString() }
             when (e) {
                 is ArgumentError.Illegal -> {
-                    desc { "One of the arguments for the command was invalid." }
-                    field("Expected Argument", true) { e.type }
-                    field("Input Argument", true) { e.actual }
+                    desc { "⚠ One of the arguments for the command was invalid." }
+                    field("Expected", true) { e.type }
+                    field("Given", true) { e.actual }
                 }
                 is ArgumentError.Insufficient -> {
-                    desc { "You need more arguments for this command." }
-                    field("Expected Argument", true) { e.type }
+                    desc { "⚠ You need more arguments for this command." }
+                    field("Expected", true) { e.type }
                 }
             }
         }.queue()
