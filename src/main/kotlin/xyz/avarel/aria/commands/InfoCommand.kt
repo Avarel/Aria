@@ -18,8 +18,8 @@ class InfoCommand : Command<MessageContext> {
                     append('`')
                     append(cmd.aliases.first())
                     append("` – ")
-                    append(cmd.info.description.text)
-                    append("\n")
+                    append(cmd.info.description)
+                    appendln()
                 }
             }
 

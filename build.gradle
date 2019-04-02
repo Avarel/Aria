@@ -65,9 +65,3 @@ jar {
         attributes 'Main-Class': mainClassName
     }
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}

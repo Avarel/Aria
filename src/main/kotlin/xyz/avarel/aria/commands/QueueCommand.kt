@@ -30,11 +30,9 @@ class QueueCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        if (context.args.isNotEmpty()) {
-            when (context.args[0]) {
-                "clear", "clr" -> return clear(context, controller)
-                "remove", "rm" -> return remove(context, controller)
-            }
+        when {
+            context.args.match("clear", "clr") -> return clear(context, controller)
+            context.args.match("remove", "rm") -> return remove(context, controller)
         }
 
         context.channel.sendEmbed("Music Queue") {
@@ -46,7 +44,8 @@ class QueueCommand : Command<MessageContext> {
                     append(Duration.ofMillis(audioTrack.duration).formatDuration())
                     append("` **")
                     append(audioTrack.info.title)
-                    append("**\n")
+                    append("**")
+                    appendln()
                 }
             }
 
@@ -77,18 +76,15 @@ class QueueCommand : Command<MessageContext> {
     private fun remove(context: MessageContext, controller: MusicController) {
         if (controller.queue.isEmpty()) return errorMessage(context, "Queue is empty.")
 
-        if (context.args.size < 2) {
-            return insufficientArgumentsMessage(context, "`#`, `first`, `last` or `all`")
-        }
-
         val queue = controller.queue
 
-        val track = when (context.args[1]) {
-            "first" -> controller.queue.removeFirst()
-            "last" -> controller.queue.removeLast()
-            "all" -> return clear(context, controller)
+        val track = when {
+            context.args.match("first") -> controller.queue.removeFirst()
+            context.args.match("last") -> controller.queue.removeLast()
+            context.args.match("all") -> return clear(context, controller)
             else -> {
-                val arg = context.args.subList(1, context.args.size).joinToString(" ")
+                //TODO HANDLE THIS
+                val arg = context.args.string("index|start..end", consumeRemaining = true)
 
                 val matcher = pattern.matcher(arg)
                 if (matcher.find()) {

@@ -29,16 +29,16 @@ fun errorMessage(context: MessageContext, reason: String) {
 }
 
 fun invalidArgumentsMessage(context: MessageContext, type: String) {
-    context.channel.sendEmbed("Invalid Argument") {
+    context.channel.sendEmbed("Invalid ArgumentInfo") {
         desc { "Invalid $type." }
     }.queue()
 }
 
-fun progressBar(length: Int, percent: Double, prefix: String = "", suffix: String = "", on: Char = '▓', off: Char = '░'): String {
+fun progressBar(length: Int, percent: Double, prefix: String = "", suffix: String = "", on: Char = '▇', off: Char = '▁'): String {
     return progressBarTo(StringBuilder(), length, percent, prefix, suffix, on, off).toString()
 }
 
-fun <A: Appendable> progressBarTo(buffer: A, length: Int, percent: Double, prefix: String = "", suffix: String = "", on: Char = '▓', off: Char = '░'): A {
+fun <A: Appendable> progressBarTo(buffer: A, length: Int, percent: Double, prefix: String = "", suffix: String = "", on: Char = '▇', off: Char = '▁'): A {
     buffer.append(prefix)
     repeat((percent * length).toInt()) {
         buffer.append(on)

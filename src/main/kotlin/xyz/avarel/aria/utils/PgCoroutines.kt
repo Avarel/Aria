@@ -7,12 +7,12 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 suspend fun PgPool.queryAsync(sql: String): PgRowSet {
-    return suspendCoroutine { coroutine ->
+    return suspendCoroutine { c ->
         query(sql) {
             if (it.succeeded()) {
-                coroutine.resume(it.result())
+                c.resume(it.result())
             } else {
-                coroutine.resumeWithException(it.cause())
+                c.resumeWithException(it.cause())
             }
         }
         this.close()

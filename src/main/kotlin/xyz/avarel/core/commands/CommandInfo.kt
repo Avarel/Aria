@@ -4,24 +4,23 @@ import java.lang.IllegalStateException
 
 class CommandInfo(
         val title: String,
-        val description: Description,
-        val usages: List<Argument>
+        val description: String,
+        val usages: List<ArgumentInfo>
 )
 
-class Description(val text: String, vararg val expanded: String)
-
-sealed class Argument(val label: String) {
-    class Label(name: String): Argument(name)
-    class Optional(target: Argument): Argument("[$target]")
-    class Required(target: Argument): Argument("($target)")
-    class Options(types: List<Argument>): Argument(types.joinToString("|"))
-    class Multi(types: List<Argument>): Argument(types.joinToString(" "))
+sealed class ArgumentInfo(val label: String) {
+    class Label(name: String): ArgumentInfo(name)
+    class Optional(target: ArgumentInfo): ArgumentInfo("[$target]")
+    class Required(target: ArgumentInfo): ArgumentInfo("($target)")
+    class Options(types: List<ArgumentInfo>): ArgumentInfo(types.joinToString("|"))
+    class Multi(types: List<ArgumentInfo>): ArgumentInfo(types.joinToString(" "))
+    class Desc(string: String, target: ArgumentInfo): ArgumentInfo("...")
 
     override fun toString() = label
 }
 
 class ArgumentBuilder {
-    val list: MutableList<Argument> = mutableListOf()
+    val list: MutableList<ArgumentInfo> = mutableListOf()
 
     fun number() = label("number")
     fun percentage() = label("percentage")
@@ -31,11 +30,15 @@ class ArgumentBuilder {
     fun timestamp() = label("[[hh]:mm]:ss")
 
     fun label(name: String) {
-        list += Argument.Label(name)
+        list += ArgumentInfo.Label(name)
+    }
+
+    inline fun desc(string: String, block: ArgumentBuilder.() -> Unit) {
+        list += ArgumentInfo.Desc(string, ArgumentBuilder().apply(block).build())
     }
 
     inline fun optional(block: ArgumentBuilder.() -> Unit) {
-        list += Argument.Optional(ArgumentBuilder().apply(block).build())
+        list += ArgumentInfo.Optional(ArgumentBuilder().apply(block).build())
     }
 
     inline fun options(block: ArgumentBuilder.() -> Unit) {
@@ -49,21 +52,21 @@ class ArgumentBuilder {
     }
 
     inline fun required(block: ArgumentBuilder.() -> Unit) {
-        list += Argument.Required(ArgumentBuilder().apply(block).build())
+        list += ArgumentInfo.Required(ArgumentBuilder().apply(block).build())
     }
 
-    fun build(options: Boolean = false): Argument {
+    fun build(options: Boolean = false): ArgumentInfo {
         return when {
             list.isEmpty() -> throw IllegalStateException("Usage with zero usages")
             list.size == 1 -> list[0]
-            else -> if (options) Argument.Options(list) else Argument.Multi(list)
+            else -> if (options) ArgumentInfo.Options(list) else ArgumentInfo.Multi(list)
         }
     }
 }
 
 class CommandInfoBuilder(val title: String) {
-    var description: String = "No desc"
-    val usages: MutableList<Argument> = mutableListOf()
+    lateinit var description: String
+    val usages: MutableList<ArgumentInfo> = mutableListOf()
 
     inline fun desc(desc: () -> String) {
         description = desc()
@@ -74,7 +77,7 @@ class CommandInfoBuilder(val title: String) {
     }
 
     fun build(): CommandInfo {
-        return CommandInfo(title, Description(description), usages)
+        return CommandInfo(title, description, usages)
     }
 }
 

@@ -5,5 +5,5 @@ package xyz.avarel.core.commands
  */
 interface Context {
     val label: String
-    val args: List<String>
+    val arguments: List<String>
 }

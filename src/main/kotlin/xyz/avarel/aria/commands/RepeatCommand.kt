@@ -22,21 +22,7 @@ class RepeatCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        val repeat = context.args.firstOrNull()?.let {
-            tryOrNull { RepeatMode.valueOf(it.toUpperCase()) }
-        }
-
-        if (repeat == null) {
-            context.channel.sendEmbed("Invalid Argument") {
-                descBuilder {
-                    append("Valid repeat options are `")
-                    RepeatMode.values().joinTo(this)
-                    append("`.")
-                }
-            }.queue()
-            return
-        }
-
+        val repeat = context.args.enum<RepeatMode>()
         controller.repeatMode = repeat
 
         context.channel.sendEmbed("Repeat") {

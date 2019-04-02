@@ -6,7 +6,7 @@ import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.core.commands.*
 
 class VolumeCommand : Command<MessageContext> {
-    override val aliases = arrayOf("volume", "v")
+    override val aliases = arrayOf("volume", "v", "vol")
 
     override val info = info("Volume Command") {
         desc { "Set the volume of the music player." }
@@ -22,16 +22,9 @@ class VolumeCommand : Command<MessageContext> {
                 ?: return requireMusicControllerMessage(context)
 
         val original = controller.player.volume
-        if (context.args.isNotEmpty()) {
-            val volume = context.args[0].toIntOrNull()?.coerceIn(0, 150)
 
-            if (volume == null) {
-                context.channel.sendEmbed("Invalid Argument") {
-                    desc { "${context.args[0]} is not a valid number from 0–150." }
-                }.queue()
-                return
-            }
-
+        if (context.args.hasNext()) {
+            val volume = context.args.numberRange(0, 150)
             controller.player.volume = volume
             context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
         }

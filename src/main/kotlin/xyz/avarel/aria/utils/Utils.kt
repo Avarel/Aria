@@ -31,9 +31,9 @@ private val durationPattern = Pattern.compile("(?:(?:(\\d+):)?(\\d{1,2}):)?(\\d{
 fun String.toDurationOrNull(): Duration? {
     val matcher = durationPattern.matcher(this)
     if (!matcher.matches()) return null
-    val h = matcher.group(1)?.toIntOrNull() ?: 0
-    val m = matcher.group(2)?.toIntOrNull() ?: 0
-    val s = matcher.group(3)?.toIntOrNull() ?: 0
+    val h = matcher.group(1)?.toInt() ?: 0
+    val m = matcher.group(2)?.toInt() ?: 0
+    val s = matcher.group(3)?.toInt() ?: 0
     return Duration.ofSeconds(h * 3600L + m * 60L + s)
 }
 
@@ -52,6 +52,7 @@ inline fun <T> tryOrNull(block: () -> T): T? {
 
 val AudioTrack.thumbnail: String?
     get() {
+
         return when (this) {
             is YoutubeAudioTrack -> "https://img.youtube.com/vi/$identifier/0.jpg"
             else -> null

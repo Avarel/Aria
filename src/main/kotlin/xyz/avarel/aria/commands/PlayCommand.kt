@@ -25,11 +25,7 @@ class PlayCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        if (context.args.isEmpty()) {
-            return insufficientArgumentsMessage(context, "music name or URL")
-        }
-
-        val query = context.args.joinToString(" ")
+        val query = context.args.string("music name or URL", consumeRemaining = true)
 
         val list = context.bot.musicManager.search(if ("https://" in query) query else "ytsearch:$query", 1)
 

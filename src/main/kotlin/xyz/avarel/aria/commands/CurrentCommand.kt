@@ -21,15 +21,21 @@ class CurrentCommand : Command<MessageContext> {
         context.channel.sendEmbed(track.info.title, track.info.uri) {
             author { track.info.author }
 
-            fieldBuilder("Progress", true) {
-                val position = Duration.ofMillis(track.position).formatDuration()
-                val total = Duration.ofMillis(track.duration).formatDuration()
+            if (track.info.isStream) {
+                field("Stream") {
+                    "\uD83D\uDD34 LIVE"
+                }
+            } else {
+                fieldBuilder("Progress", true) {
+                    val position = Duration.ofMillis(track.position).formatDuration()
+                    val total = Duration.ofMillis(track.duration).formatDuration()
 
-                progressBarTo(this, 20, track.position.toDouble() / track.duration.toDouble(), prefix = "`", suffix = "`")
-                append("\n`$position/$total`")
-            }
-            field("Time Remaining", true) {
-                Duration.ofMillis(track.duration - track.position).formatDuration()
+                    progressBarTo(this, 20, track.position.toDouble() / track.duration.toDouble(), prefix = "`", suffix = "`")
+                    append("\n`$position/$total`")
+                }
+                field("Time Remaining", true) {
+                    Duration.ofMillis(track.duration - track.position).formatDuration()
+                }
             }
 
             field("Volume", true) { "${controller.player.volume}%" }

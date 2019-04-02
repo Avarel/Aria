@@ -11,8 +11,7 @@ import xyz.avarel.aria.commands.*
 import xyz.avarel.aria.listener.MessageContextProducer
 import xyz.avarel.aria.listener.VoiceListener
 import xyz.avarel.aria.music.MusicManager
-import xyz.avarel.core.commands.Command
-import xyz.avarel.core.commands.Dispatcher
+import xyz.avarel.core.commands.*
 import xyz.avarel.core.commands.impl.DefaultCommandRegistry
 import xyz.avarel.core.store.FileStore
 import xyz.avarel.core.store.Store
@@ -54,7 +53,7 @@ class Bot(token: String, val prefix: String) {
         LOG.info("${commandRegistry.entries.size} commands registered.")
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        val dispatcher = Dispatcher(GlobalScope, commandRegistry)
+        val dispatcher = Dispatcher(GlobalScope, commandRegistry, ::handleMessageError)
 
         val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
 
@@ -75,7 +74,7 @@ class Bot(token: String, val prefix: String) {
                 }
             }
 
-            setGameProvider { _ -> Game.playing("Hello there!") }
+            setGameProvider { Game.playing("Hello there!") }
 
             addEventListeners(ctxProducer, VoiceListener(this@Bot))
         }.build()
@@ -83,5 +82,56 @@ class Bot(token: String, val prefix: String) {
         LOG.info("Building bot.")
 
         musicManager = MusicManager(this)
+    }
+
+    private fun handleMessageError(ctx: MessageContext, e: Exception) {
+        if (e !is ArgumentError) return
+        ctx.channel.sendEmbed("Argument Error") {
+            fieldBuilder("Command Input") {
+                append("```\n")
+                append(ctx.label)
+                ctx.arguments.forEach {
+                    append(' ')
+                    append(it)
+                }
+                appendln()
+                val index = ctx.label.length + ctx.arguments.subList(0, e.position - 1).sumBy { it.length + 1 } + 1
+                repeat(index) {
+                    append(' ')
+                }
+                when (e) {
+                    is ArgumentError.Illegal -> {
+                        val actual = ctx.arguments[e.position - 1]
+                        when (actual.length) {
+                            0, 1 -> append("^ ")
+                            else -> {
+                                append('└')
+                                repeat(actual.length - 2) {
+                                    append('─')
+                                }
+                                append("┘")
+                            }
+                        }
+                    }
+                    is ArgumentError.Insufficient -> {
+                        append("└?┘")
+                    }
+                }
+                append("```")
+            }
+
+            field("Position", true) { e.position.toString() }
+            when (e) {
+                is ArgumentError.Illegal -> {
+                    desc { "One of the arguments for the command was invalid." }
+                    field("Expected Argument", true) { e.type }
+                    field("Input Argument", true) { e.actual }
+                }
+                is ArgumentError.Insufficient -> {
+                    desc { "You need more arguments for this command." }
+                    field("Expected Argument", true) { e.type }
+                }
+            }
+        }.queue()
     }
 }
