@@ -3,47 +3,75 @@ package xyz.avarel.aria
 import xyz.avarel.aria.utils.toDurationOrNull
 import java.time.Duration
 import java.util.regex.Pattern
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 private val pattern = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
 
-class ArgumentHandler(val list: List<String>) {
+class ArgumentHandler(private val list: List<String>) {
     var index = 0
 
     fun hasNext() = index < list.size
 
     fun string(type: String = "String", consumeRemaining: Boolean = false): String {
         return when {
-            consumeRemaining -> list.subList(index, list.size).joinToString(" ")
-            !hasNext() -> throw ArgumentError.Insufficient(index--, type)
-            else -> list[index]
+            !hasNext() -> throw ArgumentError.Insufficient(index, type)
+            consumeRemaining -> list.subList(index, list.size).joinToString(" ").also { index = list.size }
+            else -> list[index++]
         }
     }
 
     fun number(): Int {
-        return simple("Number", String::toIntOrNull)
+        return parse("Number", String::toIntOrNull)
+    }
+
+    inline fun matchNumber(block: (Int) -> Unit) {
+        generalMatch("Number", String::toIntOrNull, block)
     }
 
     fun numberRange(low: Int, high: Int): Int {
-        return simple("Number ($low..$high)") { it.toIntOrNull()?.coerceIn(low, high) }
+        return parse("Number ($low..$high)") { it.toIntOrNull()?.takeIf { num -> num in low..high } }
+    }
+
+    inline fun matchNumberRange(low: Int, high: Int, block: (Int) -> Unit) {
+        generalMatch("Number ($low..$high)", { it.toIntOrNull()?.takeIf { num -> num in low..high } }, block)
     }
 
     fun decimal(): Double {
-        return simple("Decimal", String::toDoubleOrNull)
+        return parse("Decimal", String::toDoubleOrNull)
     }
 
     fun decimalRange(low: Double, high: Double): Double {
-        return simple("Decimal ($low..$high)") { it.toDoubleOrNull()?.coerceIn(low, high) }
+        return parse("Decimal ($low..$high)") { it.toDoubleOrNull()?.takeIf { num -> num in low..high } }
+    }
+
+    inline fun matchDecimalRange(low: Double, high: Double, block: (Double) -> Unit) {
+        generalMatch("Decimal ($low..$high)", { it.toDoubleOrNull()?.takeIf { num -> num in low..high } }, block)
     }
 
     fun duration(): Duration {
-        return simple("Timestamp [[hh:]mm:]ss", String::toDurationOrNull)
+        return parse("Timestamp [[hh:]mm:]ss", String::toDurationOrNull)
     }
 
-    private inline fun <T> simple(typeName: String, block: (String) -> T?): T {
+    inline fun matchDuration(block: (Duration) -> Unit) {
+        generalMatch("Timestamp [[hh:]mm:]ss", String::toDurationOrNull, block)
+    }
+
+    /**
+     * [block] should return null if it failed to parse into type.
+     */
+    private inline fun <T> parse(typeName: String, block: (String) -> T?): T {
         val string = string(typeName)
-        return block(string) ?: throw ArgumentError.Illegal(index--, typeName, string)
+        return block(string) ?: throw ArgumentError.Illegal(--index, typeName, string)
+    }
+
+    inline fun <T> generalMatch(typeName: String, parser: (String) -> T?, block: (T) -> Unit) {
+        if (!hasNext()) return
+        val string = string(typeName)
+        val item = parser(string)
+        if (item == null) {
+            index--
+        } else {
+            block(item)
+        }
     }
 
     inline fun <reified T: Enum<T>> enum(
@@ -59,19 +87,31 @@ class ArgumentHandler(val list: List<String>) {
         }
     }
 
-    inline fun <T> optional(block: ArgumentHandler.() -> T): T? {
-        return try {
-            block()
-        } catch (e: Exception) {
-            null
+    inline fun <reified T: Enum<T>> matchEnum(
+            name: String = T::class.java.simpleName,
+            valueNames: String = enumValues<T>().joinToString(", ", "(", ")") { it.name.toLowerCase() },
+            block: (T) -> Unit
+    ) {
+        if (!hasNext()) return
+        val typeName = "$name: $valueNames"
+        val string = string(typeName)
+        try {
+            block(enumValueOf(string.toUpperCase()))
+        } catch (e: IllegalArgumentException) {
+            return
         }
     }
 
-    inline fun <T> match(block: ArgumentHandler.() -> T): Boolean {
-        return optional(block) != null
+    /**
+     * Optional as in if there's not a next argument, it's still fine.
+     * Otherwise this will still throw an exception if it returns null
+     */
+    inline fun <T> optional(block: ArgumentHandler.() -> T): T? {
+        return if (!hasNext()) null
+        else block()
     }
 
-    fun match(vararg strings: String): Boolean {
+    fun nextIs(vararg strings: String): Boolean {
         val typeName = strings.joinToString(", ")
         val string = string(typeName)
         return strings.any { it == string }.also { if (!it) index-- }

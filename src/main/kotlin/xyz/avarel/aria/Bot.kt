@@ -2,6 +2,8 @@ package xyz.avarel.aria
 
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.bot.sharding.ShardManager
 import net.dv8tion.jda.core.entities.Game
@@ -17,6 +19,7 @@ import xyz.avarel.core.commands.impl.DefaultCommandRegistry
 import xyz.avarel.core.store.FileStore
 import xyz.avarel.core.store.Store
 import java.io.File
+import java.util.concurrent.Executors
 
 /**
  * Main bot instance.
@@ -50,6 +53,8 @@ class Bot(token: String, val prefix: String) {
         register(RepeatCommand())
         register(SkipCommand())
         register(SeekCommand())
+
+        register(TestCommand())
     }
 
     init {
@@ -99,13 +104,13 @@ class Bot(token: String, val prefix: String) {
                 }
                 appendln()
 
-                val index = ctx.label.length + ctx.arguments.subList(0, e.position - 1).sumBy { it.length + 1 } + 1
+                val index = ctx.label.length + ctx.arguments.subList(0, e.position).sumBy { it.length + 1 } + 1
                 repeat(index) {
                     append(' ')
                 }
                 when (e) {
                     is ArgumentError.Illegal -> {
-                        val actual = ctx.arguments[e.position - 1]
+                        val actual = ctx.arguments[e.position]
                         when (actual.length) {
                             0, 1 -> append("|")
                             else -> {
@@ -124,7 +129,7 @@ class Bot(token: String, val prefix: String) {
                 append("```")
             }
 
-            field("Position", true) { e.position.toString() }
+            field("Position", true) { (e.position + 1).toString() }
             when (e) {
                 is ArgumentError.Illegal -> {
                     desc { "⚠ One of the arguments for the command was invalid." }

@@ -1,11 +1,8 @@
 package xyz.avarel.core.commands
 
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 
 /**
@@ -28,21 +25,23 @@ import org.slf4j.LoggerFactory
  */
 @ObsoleteCoroutinesApi
 class Dispatcher<in CTX: Context, in C: Command<CTX>>(
-        scope: CoroutineScope,
+        private val scope: CoroutineScope,
         private val registry: CommandRegistry<C>,
         private val errorHandler: ((CTX, Exception) -> Unit)? = null
-): SendChannel<CTX> by scope.actor<CTX>(block = {
-    for (ctx in channel) {
-        registry[ctx.label]?.let { cmd ->
-            try {
-                cmd(ctx)
-            } catch (e: Exception) {
-                errorHandler?.invoke(ctx, e)
-            }
-        }
-    }
-}) {
+) {
     companion object {
         val LOG = LoggerFactory.getLogger(Dispatcher::class.java)!!
+    }
+
+    fun offer(ctx: CTX) {
+        scope.launch {
+            registry[ctx.label]?.let { cmd ->
+                try {
+                    cmd(ctx)
+                } catch (e: Exception) {
+                    errorHandler?.invoke(ctx, e)
+                }
+            }
+        }
     }
 }

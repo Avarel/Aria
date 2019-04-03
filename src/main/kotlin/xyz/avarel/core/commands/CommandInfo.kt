@@ -2,10 +2,11 @@ package xyz.avarel.core.commands
 
 import java.lang.IllegalStateException
 
-class CommandInfo(
+data class CommandInfo(
         val title: String,
-        val description: String,
-        val usages: List<ArgumentInfo>
+        val description: String?,
+        val usages: List<ArgumentInfo>,
+        val visible: Boolean
 )
 
 sealed class ArgumentInfo(val label: String) {
@@ -64,12 +65,17 @@ class ArgumentBuilder {
     }
 }
 
-class CommandInfoBuilder(val title: String) {
-    lateinit var description: String
+class CommandInfoBuilder(private val title: String) {
+    var description: String? = null
+    var visible: Boolean = true
     val usages: MutableList<ArgumentInfo> = mutableListOf()
 
-    inline fun desc(desc: () -> String) {
-        description = desc()
+    inline fun desc(block: () -> String) {
+        description = block()
+    }
+
+    inline fun visible(block: () -> Boolean) {
+        visible = block()
     }
 
     inline fun usage(block: ArgumentBuilder.() -> Unit) {
@@ -77,7 +83,7 @@ class CommandInfoBuilder(val title: String) {
     }
 
     fun build(): CommandInfo {
-        return CommandInfo(title, description, usages)
+        return CommandInfo(title, description, usages, visible)
     }
 }
 

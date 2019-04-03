@@ -31,8 +31,8 @@ class QueueCommand : Command<MessageContext> {
                 ?: return requireMusicControllerMessage(context)
 
         when {
-            context.args.match("clear", "clr") -> return clear(context, controller)
-            context.args.match("remove", "rm") -> return remove(context, controller)
+            context.args.nextIs("clear", "clr") -> return clear(context, controller)
+            context.args.nextIs("remove", "rm") -> return remove(context, controller)
         }
 
         context.channel.sendEmbed("Music Queue") {
@@ -79,9 +79,9 @@ class QueueCommand : Command<MessageContext> {
         val queue = controller.queue
 
         val track = when {
-            context.args.match("first") -> controller.queue.removeFirst()
-            context.args.match("last") -> controller.queue.removeLast()
-            context.args.match("all") -> return clear(context, controller)
+            context.args.nextIs("first") -> controller.queue.removeFirst()
+            context.args.nextIs("last") -> controller.queue.removeLast()
+            context.args.nextIs("all") -> return clear(context, controller)
             else -> {
                 //TODO HANDLE THIS
                 val arg = context.args.string("index|start..end", consumeRemaining = true)

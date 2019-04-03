@@ -13,12 +13,14 @@ class InfoCommand : Command<MessageContext> {
     override suspend fun invoke(context: MessageContext) {
         context.channel.sendEmbed("Information") {
             desc { "The bot's prefix is `${context.bot.prefix}`." }
+
             fieldBuilder("Command") {
                 for (cmd in context.bot.commandRegistry.entries) {
+                    if (!cmd.info.visible) continue
                     append('`')
                     append(cmd.aliases.first())
                     append("` – ")
-                    append(cmd.info.description)
+                    append(cmd.info.description ?: "No description.")
                     appendln()
                 }
             }
