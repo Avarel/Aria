@@ -3,7 +3,6 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.music.RepeatMode
 import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.aria.utils.tryOrNull
 import xyz.avarel.core.commands.*
 
 class RepeatCommand : Command<MessageContext> {
@@ -23,11 +22,11 @@ class RepeatCommand : Command<MessageContext> {
                 ?: return requireMusicControllerMessage(context)
 
         val repeat = context.args.enum<RepeatMode>()
-        controller.repeatMode = repeat
+        controller.scheduler.repeatMode = repeat
 
         context.channel.sendEmbed("Repeat") {
             desc {
-                when (controller.repeatMode) {
+                when (controller.scheduler.repeatMode) {
                     RepeatMode.NONE -> "The bot will not repeat songs."
                     RepeatMode.QUEUE -> "The bot will repeat the playlist."
                     RepeatMode.SONG -> "The bot will repeat the current song."

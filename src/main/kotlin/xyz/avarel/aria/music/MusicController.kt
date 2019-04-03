@@ -175,25 +175,4 @@ class MusicController(
             channel = null
         }
     }
-
-    /**
-     * Volume of the music player.
-     */
-    var volume: Int
-        get() = player.volume
-        set(value) { player.volume = value }
-
-    /**
-     * Repeat mode of the player. [RepeatMode]
-     */
-    var repeatMode: RepeatMode
-        get() = scheduler.repeatMode
-        set(value) { scheduler.repeatMode = value }
-
-    val queue: Deque<AudioTrack>
-        get() = scheduler.queue
-
-    fun skip() {
-        scheduler.nextTrack()
-    }
 }

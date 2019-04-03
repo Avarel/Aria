@@ -35,14 +35,14 @@ class VolumeCommand : Command<MessageContext> {
 
                 progressBarTo(this, 30, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
 
-                if (original != controller.volume) {
+                if (original != controller.player.volume) {
                     append(" `")
                     append(original)
                     append("%` →")
                 }
 
                 append(" `")
-                append(controller.volume)
+                append(controller.player.volume)
                 append("%`")
             }
         }.queue()

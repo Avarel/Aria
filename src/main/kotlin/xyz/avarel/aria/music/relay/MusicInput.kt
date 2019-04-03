@@ -11,12 +11,13 @@ class PlayMusicInput(val query: String): MusicInput()
 class ChangeVolumeInput(val volume: Int): MusicInput()
 class ChangeRepeatMusicInput(val repeatMode: Int): MusicInput()
 class PlaybackMusicInput(val pause: Boolean): MusicInput()
-class RemoveTrackMessage(val index: Int): MusicInput()
-class ClearQueueMessage: MusicInput()
-class SeekMessage(val position: Long): MusicInput()
+class RemoveTrackInput(val index: Int): MusicInput()
+class RemoveTrackRangeInput(val low: Int, val high: Int): MusicInput()
+class ClearQueueInput: MusicInput()
+class SeekInput(val position: Long): MusicInput()
 
-abstract class MusicInputListener {
-    fun onMessage(event: MusicInput) {
+abstract class AbstractMusicInputListener {
+    fun onInput(event: MusicInput) {
         when (event) {
             is JoinMusicChannelInput -> onJoinMusicChannelInput(event)
             is LeaveMusicChannelInput -> onLeaveMusicChannelInput(event)
@@ -25,9 +26,10 @@ abstract class MusicInputListener {
             is ChangeVolumeInput -> onChangeVolumeInput(event)
             is ChangeRepeatMusicInput -> onChangeRepeatMusicInput(event)
             is PlaybackMusicInput -> onPlaybackMusicInput(event)
-            is RemoveTrackMessage -> onRemoveTrackCommand(event)
-            is ClearQueueMessage -> onClearQueueCommand(event)
-            is SeekMessage -> onSeekCommand(event)
+            is RemoveTrackInput -> onRemoveTrackInput(event)
+            is RemoveTrackRangeInput -> onRemoveTrackRangeInput(event)
+            is ClearQueueInput -> onClearQueueInput(event)
+            is SeekInput -> onSeekInput(event)
         }
     }
 
@@ -38,7 +40,8 @@ abstract class MusicInputListener {
     abstract fun onChangeVolumeInput(event: ChangeVolumeInput)
     abstract fun onChangeRepeatMusicInput(event: ChangeRepeatMusicInput)
     abstract fun onPlaybackMusicInput(event: PlaybackMusicInput)
-    abstract fun onRemoveTrackCommand(event: RemoveTrackMessage)
-    abstract fun onClearQueueCommand(event: ClearQueueMessage)
-    abstract fun onSeekCommand(event: SeekMessage)
+    abstract fun onRemoveTrackInput(event: RemoveTrackInput)
+    abstract fun onRemoveTrackRangeInput(event: RemoveTrackRangeInput)
+    abstract fun onClearQueueInput(event: ClearQueueInput)
+    abstract fun onSeekInput(event: SeekInput)
 }

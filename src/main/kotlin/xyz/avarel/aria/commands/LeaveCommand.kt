@@ -15,11 +15,11 @@ class LeaveCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        val vc = controller.channel!! // assumption
+        val vc = controller.channel!!.name // assumption
         controller.destroy()
 
         context.channel.sendEmbed("Left Voice Channel") {
-            desc { "The bot has left the voice channel `${vc.name}`." }
+            desc { "The bot has left the voice channel `$vc`." }
         }.queue()
     }
 }
