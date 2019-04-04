@@ -1,7 +1,7 @@
 package xyz.avarel.aria.commands
 
-import kotlinx.coroutines.delay
 import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.argParse
 import xyz.avarel.core.commands.*
 
 class TestCommand : Command<MessageContext> {
@@ -16,11 +16,16 @@ class TestCommand : Command<MessageContext> {
     private var count = 0
 
     override suspend operator fun invoke(context: MessageContext) {
-        val duration = context.args.number() * 1000
-        val count = count++
-
-        delay(duration.toLong())
-
-        context.channel.sendMessage("Test $count").queue()
+        argParse(context) {
+            matchInt(description = "A number for fun.") {
+                matchLabel("love", "do you want extra love?") {
+                    context.channel.sendMessage("I love you! $it").queue()
+                    end()
+                }.otherwiseError()
+            }.otherwiseNoMore {
+                context.channel.sendMessage("wooooo").queue()
+                end()
+            }
+        }
     }
 }

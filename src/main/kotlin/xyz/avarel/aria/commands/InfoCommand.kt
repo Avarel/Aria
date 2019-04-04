@@ -1,5 +1,6 @@
 package xyz.avarel.aria.commands
 
+import net.dv8tion.jda.core.entities.MessageEmbed
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.*
 
@@ -27,5 +28,9 @@ class InfoCommand : Command<MessageContext> {
 
             footer { "2018 – Built with love by Avarel." }
         }.queue()
+    }
+
+    fun renderUsage(info: ArgumentInfo, level: Int = 0): String = buildString {
+
     }
 }
