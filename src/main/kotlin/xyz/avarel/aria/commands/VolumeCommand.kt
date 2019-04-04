@@ -1,6 +1,6 @@
 package xyz.avarel.aria.commands
 
-import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.utils.progressBarTo
 import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.core.commands.*
@@ -23,10 +23,12 @@ class VolumeCommand : Command<MessageContext> {
 
         val original = controller.player.volume
 
-        if (context.args.hasNext()) {
-            val volume = context.args.numberRange(0, 150)
-            controller.player.volume = volume
-            context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
+        context.parse {
+            matchInt { number ->
+                val volume = number.coerceIn(0, 150)
+                controller.player.volume = volume
+                context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
+            }
         }
 
         context.channel.sendEmbed("Volume") {

@@ -1,6 +1,5 @@
 package xyz.avarel.aria.commands
 
-import xyz.avarel.aria.*
 import xyz.avarel.aria.music.MusicController
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
@@ -30,9 +29,13 @@ class QueueCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        when {
-            context.args.nextIs("clear", "clr") -> return clear(context, controller)
-            context.args.nextIs("remove", "rm") -> return remove(context, controller)
+
+
+        context.parse {
+            when {
+                nextMatch("clear", "clr") -> return clear(context, controller)
+                nextMatch("remove", "rm") -> return remove(context, controller)
+            }
         }
 
         context.channel.sendEmbed("Music Queue") {
@@ -78,56 +81,57 @@ class QueueCommand : Command<MessageContext> {
 
         val queue = controller.queue
 
-        val track = when {
-            context.args.nextIs("first") -> controller.queue.removeFirst()
-            context.args.nextIs("last") -> controller.queue.removeLast()
-            context.args.nextIs("all") -> return clear(context, controller)
-            else -> {
-                //TODO HANDLE THIS
-                val arg = context.args.string("index|start..end", consumeRemaining = true)
+        context.parse {
+            val track = when {
+                nextMatch("first") -> controller.queue.removeFirst()
+                nextMatch("last") -> controller.queue.removeLast()
+                nextMatch("all") -> return clear(context, controller)
+                else -> {
+                    val arg = expectString("index|start..end", consumeRemaining = true)
 
-                val matcher = pattern.matcher(arg)
-                if (matcher.find()) {
-                    val start = matcher.group(1).let {
-                        if (it == null) 1
-                        else try {
-                            it.toInt().coerceAtLeast(1)
-                        } catch (e: NumberFormatException) {
-                            return invalidArgumentsMessage(context, "start of range")
+                    val matcher = pattern.matcher(arg)
+                    if (matcher.find()) {
+                        val start = matcher.group(1).let {
+                            if (it == null) 1
+                            else try {
+                                it.toInt().coerceAtLeast(1)
+                            } catch (e: NumberFormatException) {
+                                return invalidArgumentsMessage(context, "start of range")
+                            }
                         }
-                    }
 
-                    val end = matcher.group(2).let {
-                        if (it == null) queue.size
-                        else try {
-                            it.toInt().coerceAtMost(queue.size)
-                        } catch (e: NumberFormatException) {
-                            return invalidArgumentsMessage(context, "end of range")
+                        val end = matcher.group(2).let {
+                            if (it == null) queue.size
+                            else try {
+                                it.toInt().coerceAtMost(queue.size)
+                            } catch (e: NumberFormatException) {
+                                return invalidArgumentsMessage(context, "end of range")
+                            }
                         }
+
+                        for (i in start..end) {
+                            controller.scheduler.remove(i - 1)
+                        }
+
+                        context.channel.sendEmbed("Remove Tracks") {
+                            desc { "Removed track number `$start..$end` from the queue." }
+                        }.queue()
+                        return
                     }
 
-                    for (i in start..end) {
-                        controller.scheduler.remove(i - 1)
+                    val index = arg.toIntOrNull()
+
+                    if (index == null || index !in 1..queue.size) {
+                        return invalidArgumentsMessage(context, "track number `1..${queue.size}`")
                     }
 
-                    context.channel.sendEmbed("Remove Tracks") {
-                        desc { "Removed track number `$start..$end` from the queue." }
-                    }.queue()
-                    return
+                    controller.scheduler.remove(index - 1)
                 }
-
-                val index = arg.toIntOrNull()
-
-                if (index == null || index !in 1..queue.size) {
-                    return invalidArgumentsMessage(context, "track number `1..${queue.size}`")
-                }
-
-                controller.scheduler.remove(index - 1)
             }
-        }
 
-        context.channel.sendEmbed("Music Queue") {
-            desc { "Removed **${track.info.title}** from the queue." }
-        }.queue()
+            context.channel.sendEmbed("Music Queue") {
+                desc { "Removed **${track.info.title}** from the queue." }
+            }.queue()
+        }
     }
 }

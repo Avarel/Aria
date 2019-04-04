@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.events.Event
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.core.hooks.EventListener
 import xyz.avarel.aria.Bot
-import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.core.commands.Command
 import xyz.avarel.core.commands.Dispatcher
 import java.util.ArrayList

@@ -1,6 +1,5 @@
 package xyz.avarel.aria.utils
 
-import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.desc
 import xyz.avarel.core.commands.sendEmbed
 

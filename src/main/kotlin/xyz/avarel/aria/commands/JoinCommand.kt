@@ -1,6 +1,6 @@
 package xyz.avarel.aria.commands
 
-import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.music.MusicController.*
 import xyz.avarel.core.commands.*
 

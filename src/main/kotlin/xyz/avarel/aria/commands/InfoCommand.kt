@@ -1,7 +1,6 @@
 package xyz.avarel.aria.commands
 
-import net.dv8tion.jda.core.entities.MessageEmbed
-import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.core.commands.*
 
 class InfoCommand : Command<MessageContext> {

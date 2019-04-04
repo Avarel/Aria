@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory
 class Dispatcher<in CTX: Context, in C: Command<CTX>>(
         private val scope: CoroutineScope,
         private val registry: CommandRegistry<C>,
-        private val errorHandler: ((CTX, Exception) -> Unit)? = null
+        private val errorHandler: ((CTX, Exception) -> Unit)? = { _, e -> LOG.error("Uncaught command error.", e)}
 ) {
     companion object {
         val LOG = LoggerFactory.getLogger(Dispatcher::class.java)!!
@@ -35,7 +35,7 @@ class Dispatcher<in CTX: Context, in C: Command<CTX>>(
 
     fun offer(ctx: CTX) {
         scope.launch {
-            registry[ctx.label]?.let { cmd ->
+            registry[ctx.label.toLowerCase()]?.let { cmd ->
                 try {
                     cmd(ctx)
                 } catch (e: Exception) {
