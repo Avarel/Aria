@@ -42,9 +42,9 @@ class SeekCommand : Command<MessageContext> {
         val current = Duration.ofMillis(track.position)
 
         val duration = when {
-            context.args.match("start", "beginning") -> Duration.ofSeconds(0)
-            context.args.match("+", "plus", "forward") -> Duration.ofMillis(track.position) + context.args.duration()
-            context.args.match("-", "minus", "backward") -> Duration.ofMillis(track.position) - context.args.duration()
+            context.args.nextIs("start", "beginning") -> Duration.ofSeconds(0)
+            context.args.nextIs("+", "plus", "forward") -> Duration.ofMillis(track.position) + context.args.duration()
+            context.args.nextIs("-", "minus", "backward") -> Duration.ofMillis(track.position) - context.args.duration()
             else -> context.args.duration()
         }
 
