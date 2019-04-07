@@ -96,12 +96,12 @@ class MusicController(
     /**
      * Activate or deactivate the delayed task that destroys this controller.
      */
-    fun autoDestroy(activate: Boolean) {
-        if (activate) {
+    fun setAutoDestroy(autoDestroy: Boolean) {
+        if (autoDestroy) {
             if (leaveJob == null) {
                 LOG.debug("Activate auto-destroy music controller for $guild.")
                 leaveJob = GlobalScope.launch {
-                    delay(30)
+                    delay(30 * 1000)
                     destroy()
                 }
             }
@@ -190,7 +190,7 @@ class MusicController(
         get() = scheduler.repeatMode
         set(value) { scheduler.repeatMode = value }
 
-    val queue: Deque<AudioTrack>
+    val queue: MutableList<AudioTrack>
         get() = scheduler.queue
 
     fun skip() {

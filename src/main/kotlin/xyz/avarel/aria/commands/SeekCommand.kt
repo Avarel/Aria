@@ -36,16 +36,16 @@ class SeekCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
-        val track = controller.player.playingTrack ?: return requirePlayingTrackMessage(context)
+        val track = controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
 
         val current = Duration.ofMillis(track.position)
 
         context.parse {
             val duration = when {
-                nextMatch("start", "beginning") -> Duration.ofSeconds(0)
-                nextMatch("+", "plus", "forward") -> current + expectDuration()
-                nextMatch("-", "minus", "backward") -> current - expectDuration()
-                else -> expectDuration()
+                nextMatch("Move to the start of the song.", "start", "beginning") -> Duration.ofSeconds(0)
+                nextMatch("Move forward by a certain amount of time.", "+", "plus", "forward") -> current + expectDuration("Amount of time the player should move forward.")
+                nextMatch("Move backward by a certain amount of time.", "-", "minus", "backward") -> current - expectDuration("Amount of time the player should move backwards.")
+                else -> expectDuration("The exact time that the player should move to.")
             }
 
             track.position = duration.toMillis()

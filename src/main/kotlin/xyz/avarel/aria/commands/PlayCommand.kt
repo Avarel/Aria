@@ -1,5 +1,7 @@
 package xyz.avarel.aria.commands
 
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.music.TrackContext
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
@@ -25,9 +27,14 @@ class PlayCommand : Command<MessageContext> {
                 ?: return requireMusicControllerMessage(context)
 
         context.parse {
-            val query = expectString("music name or URL", consumeRemaining = true)
+            val query = expectString("(music name or URL)", "A music link or search query.", consumeRemaining = true)
 
-            val list = context.bot.musicManager.search(if ("https://" in query) query else "ytsearch:$query", 1)
+            val isLink = "https://" in query
+            val list = try {
+                context.bot.musicManager.search(if (isLink) query else "ytsearch:$query", if (isLink) -1 else 1)
+            } catch (e: FriendlyException) {
+                return context.errorMessage("An exception occurred when searching: `${e.message}`")
+            }
 
             if (list.isEmpty()) {
                 context.channel.sendEmbed("No Results") {
@@ -36,27 +43,44 @@ class PlayCommand : Command<MessageContext> {
                 return
             }
 
-            val track = list[0]
+            list.forEach { it.userData = TrackContext(context.member, context.textChannel) }
 
-            track.userData = TrackContext(context.member, context.textChannel)
+            context.channel.sendEmbed {
+                if (list.size == 1) {
+                    val track = list[0]
+                    setTitle(track.info.title, track.info.uri)
+                    author { track.info.author }
+                    image { track.thumbnail }
+                } else {
+                    title { "${list.size} Songs" }
+                    descBuilder {
+                        list.subList(0, Math.min(10, list.size)).forEachIndexed { i, track ->
+                            append('`')
+                            append(i + 1)
+                            append("` • ")
+                            append(track.info.title)
+                            appendln()
+                        }
+                        if (list.size > 10) {
+                            append("... and ${list.size - 10} more songs.")
+                        }
+                    }
+                }
 
-            context.channel.sendEmbed(track.info.title, track.info.uri) {
-                setAuthor(track.info.author)
-
-                field("Duration", true) { Duration.ofMillis(track.duration).formatDuration() }
+                field("Duration", true) { Duration.ofMillis(list.sumByLong(AudioTrack::getDuration)).formatDuration() }
                 field("Time Until Play", true) {
-                    val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
+                    val duration = controller.scheduler.duration - (controller.player.playingTrack?.remainingDuration ?: 0)
                     Duration.ofMillis(duration).formatDuration()
                 }
 
-                field("Requester", true) { track.trackContext.requester.asMention }
-                field("Requested Channel", true) { track.trackContext.channel.asMention }
+                field("Requester", true) { context.member.asMention }
+                field("Requested Channel", true) { context.textChannel.asMention }
 
-                image { track.thumbnail }
             }.await()
 
-            controller.scheduler.offer(list[0])
-            controller.autoDestroy(false)
+            list.forEach(controller.scheduler::offer)
+
+            controller.setAutoDestroy(false)
         }
     }
 }

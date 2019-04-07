@@ -15,7 +15,7 @@ class SkipCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
-        val track = controller.player.playingTrack ?: return requirePlayingTrackMessage(context)
+        val track = controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
 
         controller.skip()
 

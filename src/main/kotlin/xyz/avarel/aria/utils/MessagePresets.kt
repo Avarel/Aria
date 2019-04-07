@@ -1,34 +1,33 @@
 package xyz.avarel.aria.utils
 
 import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.descBuilder
 import xyz.avarel.core.commands.sendEmbed
 
 fun requireMusicControllerMessage(context: MessageContext) {
     context.channel.sendEmbed("No Active Music Channel") {
-        desc { "The bot is not currently connected to any voice channel." }
+        descBuilder {
+            append("The bot is not currently connected to any voice channel.")
+            appendln()
+            append("Try joining a channel using the command `join` first.")
+        }
     }.queue()
 }
 
-fun requirePlayingTrackMessage(context: MessageContext) {
-    context.channel.sendEmbed("No Active Music") {
+fun MessageContext.requirePlayingTrackMessage() {
+    channel.sendEmbed("No Active Music") {
         desc { "The bot is not currently playing any music." }
     }.queue()
 }
 
-fun insufficientArgumentsMessage(context: MessageContext, type: String) {
-    context.channel.sendEmbed("Insufficient Arguments") {
-        desc { "Please include $type in the usage." }
-    }.queue()
-}
-
-fun errorMessage(context: MessageContext, reason: String) {
-    context.channel.sendEmbed("Error") {
+fun MessageContext.errorMessage(reason: String) {
+    channel.sendEmbed("Error") {
         desc { reason }
     }.queue()
 }
 
-fun invalidArgumentsMessage(context: MessageContext, type: String) {
-    context.channel.sendEmbed("Invalid ArgumentInfo") {
+fun MessageContext.invalidArgumentsMessage(type: String) {
+    channel.sendEmbed("Invalid ArgumentInfo") {
         desc { "Invalid $type." }
     }.queue()
 }

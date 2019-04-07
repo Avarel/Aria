@@ -15,7 +15,7 @@ class PauseCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
-        controller.player.playingTrack ?: return requirePlayingTrackMessage(context)
+        controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
 
         controller.player.isPaused = !controller.player.isPaused
 

@@ -15,7 +15,7 @@ class CurrentCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        val track = controller.player.playingTrack ?: return requirePlayingTrackMessage(context)
+        val track = controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
 
         context.channel.sendEmbed(track.info.title, track.info.uri) {
             author { track.info.author }
@@ -29,7 +29,7 @@ class CurrentCommand : Command<MessageContext> {
                     val position = Duration.ofMillis(track.position).formatDuration()
                     val total = Duration.ofMillis(track.duration).formatDuration()
 
-                    progressBarTo(this, 20, track.position.toDouble() / track.duration.toDouble(), prefix = "`", suffix = "`")
+                    progressBarTo(this, 15, track.position.toDouble() / track.duration.toDouble(), prefix = "`", suffix = "`")
                     append("\n`$position/$total`")
                 }
                 field("Time Remaining", true) {

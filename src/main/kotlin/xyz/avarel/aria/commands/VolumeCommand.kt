@@ -24,29 +24,30 @@ class VolumeCommand : Command<MessageContext> {
         val original = controller.player.volume
 
         context.parse {
-            matchInt { number ->
+            if (hasNext()) {
+                val number = expectInt("The music player's new volume.")
                 val volume = number.coerceIn(0, 150)
                 controller.player.volume = volume
                 context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
             }
-        }
 
-        context.channel.sendEmbed("Volume") {
-            descBuilder {
-                append("\uD83D\uDD0A ")
+            context.channel.sendEmbed("Volume") {
+                descBuilder {
+                    append("\uD83D\uDD0A ")
 
-                progressBarTo(this, 30, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+                    progressBarTo(this, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
 
-                if (original != controller.volume) {
+                    if (original != controller.volume) {
+                        append(" `")
+                        append(original)
+                        append("%` →")
+                    }
+
                     append(" `")
-                    append(original)
-                    append("%` →")
+                    append(controller.volume)
+                    append("%`")
                 }
-
-                append(" `")
-                append(controller.volume)
-                append("%`")
-            }
-        }.queue()
+            }.queue()
+        }
     }
 }

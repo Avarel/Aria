@@ -37,22 +37,21 @@ fun String.toDurationOrNull(): Duration? {
     return Duration.ofSeconds(h * 3600L + m * 60L + s)
 }
 
-val AudioTrack.remainingDuration: Long
-    get() {
-        return this.duration - this.position
-    }
+private val rangePattern = Pattern.compile("(\\d+)?(?:\\.\\.|-)(\\d+)?")
 
-inline fun <T> tryOrNull(block: () -> T): T? {
-    return try {
-        block()
-    } catch (e: Exception) {
-        null
-    }
+fun String.toRangeOrNull(): IntRange? {
+    val matcher = rangePattern.matcher(this)
+    if (!matcher.matches()) return null
+    val low = matcher.group(1)?.toInt() ?: Integer.MIN_VALUE
+    val high = matcher.group(2)?.toInt() ?: Integer.MAX_VALUE
+    return low..high
 }
+
+val AudioTrack.remainingDuration: Long
+    get() = this.duration - this.position
 
 val AudioTrack.thumbnail: String?
     get() {
-
         return when (this) {
             is YoutubeAudioTrack -> "https://img.youtube.com/vi/$identifier/0.jpg"
             else -> null
@@ -62,3 +61,13 @@ val AudioTrack.thumbnail: String?
 inline val AudioTrack.trackContext: TrackContext
     get() = this.userData as TrackContext
 
+/**
+ * Returns the sum of all values produced by [selector] function applied to each element in the collection.
+ */
+inline fun <T> Iterable<T>.sumByLong(selector: (T) -> Long): Long {
+    var sum: Long = 0
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}

@@ -48,13 +48,13 @@ class VoiceListener(private val bot: Bot) : EventListener {
         bot.musicManager.getExisting(guild.idLong)?.let { controller ->
             if (channelJoined == controller.channel) {
                 if (controller.isAlone!!) {
-                    controller.autoDestroy(true)
+                    controller.setAutoDestroy(true)
                     if (controller.player.playingTrack != null) {
                         controller.player.isPaused = true
                         LOG.debug("Paused playback for $guild.")
                     }
                 } else {
-                    controller.autoDestroy(false)
+                    controller.setAutoDestroy(false)
                     if (controller.player.playingTrack != null) {
                         controller.player.isPaused = false
                         LOG.debug("Resumed playback for $guild.")
@@ -67,7 +67,7 @@ class VoiceListener(private val bot: Bot) : EventListener {
     private fun left(guild: Guild, channelLeft: VoiceChannel) {
         bot.musicManager.getExisting(guild.idLong)?.let { controller ->
             if (channelLeft == controller.channel && controller.isAlone!!) {
-                controller.autoDestroy(true)
+                controller.setAutoDestroy(true)
                 if (controller.player.playingTrack != null) {
                     controller.player.isPaused = true
                     LOG.debug("Paused playback for $guild.")

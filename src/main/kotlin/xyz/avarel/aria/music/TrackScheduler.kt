@@ -21,7 +21,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
     /**
      * @return List of audio tracks queued.
      */
-    val queue: Deque<AudioTrack> = ArrayDeque()
+    val queue: MutableList<AudioTrack> = mutableListOf()
 
     /**
      * @return The current repeat mode.
@@ -50,7 +50,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
      */
     fun offer(track: AudioTrack) {
         if (!controller.player.startTrack(track, true)) {
-            queue.offer(track)
+            queue += track
         } else {
             LOG.debug("${track.info.title} playback started.")
         }
@@ -77,7 +77,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
             controller.player.stopTrack()
             return
         }
-        val track = queue.poll()
+        val track = queue.removeAt(0)
         controller.player.startTrack(track, false)
         LOG.debug("${track.info.title} playback started.")
     }
@@ -109,7 +109,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
                 }
                 RepeatMode.QUEUE -> {
                     val newTrack = track.makeClone().also { it.userData = track.userData }
-                    queue.offer(newTrack)
+                    queue += newTrack
                     nextTrack()
                 }
                 RepeatMode.NONE -> nextTrack()

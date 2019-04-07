@@ -29,8 +29,6 @@ data class MessageContext internal constructor(
             try {
                 it.block()
             } catch (e: ExpectArgumentException) {
-                println("what")
-                it.possibleArguments += e.info
                 it.matchError()
             }
         }

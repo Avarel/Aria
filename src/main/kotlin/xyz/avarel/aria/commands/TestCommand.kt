@@ -13,16 +13,8 @@ class TestCommand : Command<MessageContext> {
 
     override suspend operator fun invoke(context: MessageContext) {
         context.parse {
-            matchLabel("what is love") {
-                val value = expectInt()
-                context.channel.sendMessage("baby dont hurt me $value").queue()
-            } || matchInt(description = "A number for fun.") {
-                matchLabel("love", "do you want extra love?") {
-                    context.channel.sendMessage("I love you! $it").queue()
-                } || matchLabel("test", "Wowee") {
-                    context.channel.sendMessage("What $it").queue()
-                } || matchError()
-            } || matchError()
+            val what = expectInt(description = "?")
+            println(what)
         }
     }
 }

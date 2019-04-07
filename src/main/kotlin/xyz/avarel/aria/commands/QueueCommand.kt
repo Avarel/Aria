@@ -1,10 +1,10 @@
 package xyz.avarel.aria.commands
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.music.MusicController
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
-import java.util.regex.Pattern
 
 class QueueCommand : Command<MessageContext> {
     override val aliases = arrayOf("queue", "q")
@@ -29,43 +29,58 @@ class QueueCommand : Command<MessageContext> {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-
+        if (controller.queue.isEmpty()) {
+            return context.errorMessage("The queue is empty.")
+        }
 
         context.parse {
             when {
-                nextMatch("clear", "clr") -> return clear(context, controller)
-                nextMatch("remove", "rm") -> return remove(context, controller)
+                nextMatch("Remove all tracks from the queue.", "clear", "clr") -> return clear(context, controller)
+                nextMatch("Remove specific tracks from the queue.", "remove", "rm") -> return remove(context, controller)
             }
-        }
 
-        context.channel.sendEmbed("Music Queue") {
-            descBuilder {
-                controller.queue.forEachIndexed { index, audioTrack ->
-                    append('`')
-                    append(index + 1)
-                    append("` `")
-                    append(Duration.ofMillis(audioTrack.duration).formatDuration())
-                    append("` **")
-                    append(audioTrack.info.title)
-                    append("**")
-                    appendln()
+            val itemsPerPage = 10
+            val pages = controller.queue.partition(itemsPerPage)
+
+            val pg = if (hasNext()) {
+                expectInt("Display the tracks queued on page `(number)`.")
+            } else {
+                optionalInt() ?: 1
+            }.coerceIn(1, pages.size)
+
+            val list = pages[pg - 1]
+
+            context.channel.sendEmbed("Music Queue") {
+                descBuilder {
+                    list.forEachIndexed { i, track ->
+                        append('`')
+                        append((pg - 1) * itemsPerPage + i + 1)
+                        append("` `")
+                        append(Duration.ofMillis(track.duration).formatDuration())
+                        append("` **")
+                        append(track.info.title)
+                        append("**")
+                        appendln()
+                    }
                 }
-            }
 
-            field("Size", true) { controller.queue.size.toString() }
-            field("Duration", true) {
-                val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
-                Duration.ofMillis(duration).formatDuration()
-            }
-            field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }
+                field("Size", true) { controller.queue.size.toString() }
+                field("Duration", true) {
+                    val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
+                    Duration.ofMillis(duration).formatDuration()
+                }
+                field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }
 
-            field("Now Playing") { controller.player.playingTrack?.info?.title ?: "Nothing" }
-        }.queue()
+                field("Now Playing") { controller.player.playingTrack?.info?.title ?: "Nothing" }
+
+                footer { "Page $pg/${pages.size}" }
+            }.queue()
+        }
     }
 
     private fun clear(context: MessageContext, controller: MusicController) {
         val size = controller.queue.size
-        if (size == 0) return errorMessage(context, "Queue is empty.")
+        if (size == 0) return context.errorMessage("Queue is empty.")
 
         controller.queue.clear()
 
@@ -74,64 +89,58 @@ class QueueCommand : Command<MessageContext> {
         }.queue()
     }
 
-    private val pattern = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
-
     private fun remove(context: MessageContext, controller: MusicController) {
-        if (controller.queue.isEmpty()) return errorMessage(context, "Queue is empty.")
+        if (controller.queue.isEmpty()) return context.errorMessage("Queue is empty.")
 
         val queue = controller.queue
 
         context.parse {
-            val track = when {
-                nextMatch("first") -> controller.queue.removeFirst()
-                nextMatch("last") -> controller.queue.removeLast()
-                nextMatch("all") -> return clear(context, controller)
+            when {
+                nextMatch("Remove the first track.", "first") -> notifyRemovedTrack(context, controller.queue.removeAt(0))
+                nextMatch("Remove the last track.", "last") -> notifyRemovedTrack(context, controller.queue.removeAt(controller.queue.size - 1))
+                nextMatch("Remove all tracks.", "all") -> return clear(context, controller)
                 else -> {
-                    val arg = expectString("index|start..end", consumeRemaining = true)
+                    matchInt("Index of the music track.", "(index)") { index ->
+                        if (index !in 1..queue.size) {
+                            return context.invalidArgumentsMessage("track number `1..${queue.size}`")
+                        }
+                        notifyRemovedTrack(context, controller.scheduler.remove(index - 1))
+                    } || matchRange(description = "Remove all tracks from `low` to `high` positions.") { range ->
+                        val low = range.start.coerceAtLeast(1)
+                        val high = range.endInclusive.coerceAtMost(queue.size)
 
-                    val matcher = pattern.matcher(arg)
-                    if (matcher.find()) {
-                        val start = matcher.group(1).let {
-                            if (it == null) 1
-                            else try {
-                                it.toInt().coerceAtLeast(1)
-                            } catch (e: NumberFormatException) {
-                                return invalidArgumentsMessage(context, "start of range")
+                        if (low > high) {
+                            return context.errorMessage("The lower bound `$low` bound must not be greater than the upper bound `$high`.")
+                        }
+
+                        val list = (low..high).map { controller.scheduler.remove(low - 1) }
+
+                        context.channel.sendEmbed("Remove ${list.size} Tracks") {
+                            descBuilder {
+                                list.subList(0, Math.min(10, list.size)).forEachIndexed { i, track ->
+                                    append('`')
+                                    append(low + i)
+                                    append("` `")
+                                    append(Duration.ofMillis(track.duration).formatDuration())
+                                    append("` **")
+                                    append(track.info.title)
+                                    append("**")
+                                    appendln()
+                                }
+                                if (list.size > 10) {
+                                    append("... and ${list.size - 10} more songs.")
+                                }
                             }
-                        }
-
-                        val end = matcher.group(2).let {
-                            if (it == null) queue.size
-                            else try {
-                                it.toInt().coerceAtMost(queue.size)
-                            } catch (e: NumberFormatException) {
-                                return invalidArgumentsMessage(context, "end of range")
-                            }
-                        }
-
-                        for (i in start..end) {
-                            controller.scheduler.remove(i - 1)
-                        }
-
-                        context.channel.sendEmbed("Remove Tracks") {
-                            desc { "Removed track number `$start..$end` from the queue." }
                         }.queue()
-                        return
-                    }
-
-                    val index = arg.toIntOrNull()
-
-                    if (index == null || index !in 1..queue.size) {
-                        return invalidArgumentsMessage(context, "track number `1..${queue.size}`")
-                    }
-
-                    controller.scheduler.remove(index - 1)
+                    } || matchError()
                 }
             }
-
-            context.channel.sendEmbed("Music Queue") {
-                desc { "Removed **${track.info.title}** from the queue." }
-            }.queue()
         }
+    }
+
+    private fun notifyRemovedTrack(context: MessageContext, track: AudioTrack) {
+        context.channel.sendEmbed("Music Queue") {
+            desc { "Removed **${track.info.title}** from the queue." }
+        }.queue()
     }
 }

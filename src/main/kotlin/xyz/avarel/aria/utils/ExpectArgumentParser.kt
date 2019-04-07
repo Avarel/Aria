@@ -13,61 +13,56 @@ argParse(arg) {
 
  */
 
-class ExpectArgumentException(val info: ArgumentInfo) : RuntimeException()
+class ExpectArgumentException : RuntimeException()
 
 class ExpectArgumentParser(ctx: MessageContext) : ArgumentParser(ctx) {
-    fun expectString(type: String = "(text)", consumeRemaining: Boolean = false): String {
-        return when {
-            !hasNext() -> expectError(type, false)
-            consumeRemaining -> ctx.arguments.subList(index, ctx.arguments.size).joinToString(" ").also { index = ctx.arguments.size }
-            else -> ctx.arguments[index++]
-        }
+    fun expectString(description: String, type: String = MatchNames.STRING, consumeRemaining: Boolean = false): String {
+        matchString(description, type, consumeRemaining) { return it }
+        expectError()
     }
 
-    fun expectInt(): Int {
-        return parseExpect("(number)", String::toIntOrNull)
+    fun expectInt(description: String, type: String = MatchNames.INT): Int {
+        matchInt(description, type) { return it }
+        expectError()
     }
 
-    fun intBetween(low: Int, high: Int): Int {
-        return parseExpect("(number $low..$high)") { it.toIntOrNull()?.takeIf { num -> num in low..high } }
+    fun optionalInt(): Int? {
+        matchInt("") { return it }
+        return null
     }
 
-    fun expectDouble(): Double {
-        return parseExpect("(decimal)", String::toDoubleOrNull)
+//    fun intBetween(low: Int, high: Int): Int {
+//        return parseExpect("(number: $low..$high)") { it.toIntOrNull()?.takeIf { num -> num in low..high } }
+//    }
+
+    fun expectDouble(description: String, type: String = MatchNames.DOUBLE): Double {
+        matchDouble(description, type) { return it }
+        expectError()
     }
 
-    fun doubleBetween(low: Double, high: Double): Double {
-        return parseExpect("(decimal $low..$high)") { it.toDoubleOrNull()?.takeIf { num -> num in low..high } }
+//    fun doubleBetween(low: Double, high: Double): Double {
+//        return parseExpect("(decimal: $low..$high)") { it.toDoubleOrNull()?.takeIf { num -> num in low..high } }
+//    }
+
+    fun expectDuration(description: String, type: String = MatchNames.DURATION): Duration {
+        matchDuration(description, type) { return it }
+        expectError()
     }
 
-    fun expectDuration(): Duration {
-        return parseExpect("([[hh:]mm:]ss)", String::toDurationOrNull)
+    fun expectRange(description: String, type: String = MatchNames.GENERIC_RANGE): IntRange {
+        matchRange(description, type) { return it }
+        expectError()
     }
 
     inline fun <reified T: Enum<T>> expectEnum(
-            name: String = T::class.java.simpleName,
-            valueNames: String = enumValues<T>().joinToString(", ", "(", ")") { it.name.toLowerCase() }
+            type: String = MatchNames.enumName<T>(),
+            description: String? = MatchNames.enumDesc<T>()
     ): T {
-        val typeName = "$name: $valueNames"
-        val string = expectString(typeName)
-        return try {
-            enumValueOf(string.toUpperCase())
-        } catch (e: IllegalArgumentException) {
-            expectError(typeName, true)
-        }
+        matchEnum<T>(type, description) { return it }
+        expectError()
     }
 
-    /**
-     * [block] should return null if it failed to parse into type.
-     */
-    private inline fun <T> parseExpect(typeName: String, block: (String) -> T?): T {
-        val string = expectString(typeName)
-        return block(string) ?: expectError(typeName, true)
+    fun expectError(): Nothing {
+        throw ExpectArgumentException()
     }
-
-    fun expectError(type: String, decreaseIndex: Boolean): Nothing {
-        if (decreaseIndex) index--
-        throw ExpectArgumentException(ArgumentInfo(type, null))
-    }
-
 }
