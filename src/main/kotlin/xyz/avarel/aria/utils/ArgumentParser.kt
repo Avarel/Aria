@@ -15,30 +15,38 @@ open class ArgumentParser(val ctx: MessageContext) {
     val possibleArguments = mutableListOf<ArgumentInfo>()
     fun hasNext(size: Int = 1) = index + size - 1 < ctx.arguments.size
 
-    fun peekString(): String? {
+    /**
+     * @return A concatenated string of the next [size] arguments,
+     *         else null if there is no more [size] arguments.
+     */
+    fun peekString(size: Int = 1): String? {
         return when {
-            hasNext() -> ctx.arguments[index]
+            hasNext(size) -> when (size) {
+                1 -> ctx.arguments[index]
+                else -> ctx.arguments.subList(index, index + size).joinToString(" ")
+            }
             else -> null
         }
     }
 
-    fun peekStrings(size: Int): String? {
-        return when {
-            hasNext(size) -> ctx.arguments.subList(index, index + size).joinToString(" ")
-            else -> null
-        }
+    /**
+     * @return true if the next argument is one of the [labels].
+     */
+    fun nextIs(vararg labels: String): Boolean {
+        return nextLabel(*labels) != null
     }
 
-    fun nextIs(vararg strings: String): Boolean {
-        return nextLabel(*strings) != null
-    }
-
-    private fun nextLabel(vararg strings: String): String? {
+    /**
+     * @return null if the next argument does not match any of the [labels].
+     *         else return the matched label.
+     * Does not consume the next argument.
+     */
+    private fun nextLabel(vararg labels: String): String? {
         val peek = peekString()
-        strings.forEach {
+        labels.forEach {
             if (it.trim().indexOf(' ') != -1) {
-                val words = it.count { c -> c == ' ' }
-                val peeks = peekStrings(words + 1)
+                val words = it.count { c -> c == ' ' } + 1
+                val peeks = peekString(words)
                 if (peeks.equals(it, ignoreCase = true)) {
                     return peeks
                 }
@@ -64,6 +72,9 @@ open class ArgumentParser(val ctx: MessageContext) {
         }
     }
 
+    /**
+     * @return the next argument. Consumes the argument in the process.
+     */
     fun nextString(): String {
         return ctx.arguments[index++]
     }
@@ -73,7 +84,7 @@ open class ArgumentParser(val ctx: MessageContext) {
     }
 
     inline fun matchString(
-            description: String? = null,
+            description: String,
             type: String = MatchNames.STRING,
             consumeRemaining: Boolean = false,
             block: ArgumentParser.(String) -> Unit

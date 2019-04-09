@@ -12,7 +12,16 @@ interface Command<in T> {
      */
     val aliases: Array<String>
 
-    val info: CommandInfo
+    val title: String get() = "No title."
+
+    /**
+     * Description of the command.
+     */
+    val description: String get() = "No description."
+
+    val usage: String get() = ""
+
+    val visible: Boolean get() = true
 
     /**
      * The implementation of what happens when the command

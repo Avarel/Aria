@@ -2,15 +2,17 @@ package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.utils.await
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.AnnotatedCommand
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.field
+import xyz.avarel.core.commands.sendEmbed
 
-class PingCommand : Command<MessageContext> {
-    override val aliases = arrayOf("ping")
-
-    override val info = info("Ping Command") {
-        desc { "Get the ping of the bot." }
-    }
-
+@CommandInfo(
+        aliases = ["ping"],
+        title = "Ping Command",
+        description = "Get the ping of the bot."
+)
+class PingCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val current = System.currentTimeMillis()
         context.channel.sendTyping().await()

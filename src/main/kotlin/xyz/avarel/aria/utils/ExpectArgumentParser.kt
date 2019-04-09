@@ -1,6 +1,5 @@
 package xyz.avarel.aria.utils
 
-import java.lang.RuntimeException
 import java.time.Duration
 
 /*

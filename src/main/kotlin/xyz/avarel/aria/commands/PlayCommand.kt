@@ -7,21 +7,13 @@ import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 
-class PlayCommand : Command<MessageContext> {
-    override val aliases = arrayOf("play", "p")
-
-    override val info = info("Play Music Command") {
-        desc { "Play some music." }
-        usage {
-            required {
-                options {
-                    url()
-                    text()
-                }
-            }
-        }
-    }
-
+@CommandInfo(
+        aliases = ["play", "p"],
+        title = "Play Music Command",
+        description = "Play some music.",
+        usage = "(url|search)"
+)
+class PlayCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
@@ -62,7 +54,7 @@ class PlayCommand : Command<MessageContext> {
                             appendln()
                         }
                         if (list.size > 10) {
-                            append("... and ${list.size - 10} more songs.")
+                            append("... and ${list.size - 10} more addedSongs.")
                         }
                     }
                 }

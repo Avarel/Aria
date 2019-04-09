@@ -1,16 +1,15 @@
 package xyz.avarel.aria.commands
 
+import ConnectResult
 import xyz.avarel.aria.utils.MessageContext
-import xyz.avarel.aria.music.MusicController.*
 import xyz.avarel.core.commands.*
 
-class JoinCommand : Command<MessageContext> {
-    override val aliases = arrayOf("join", "j")
-
-    override val info = info("Join Music Channel Command") {
-        desc { "Let the bot join your current voice channel." }
-    }
-
+@CommandInfo(
+        aliases = ["join", "j"],
+        title = "Join Music Channel Command",
+        description = "Let the bot join your current voice channel."
+)
+class JoinCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val vc = context.member.voiceState.channel
         if (vc == null) {

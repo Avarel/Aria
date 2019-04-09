@@ -8,7 +8,7 @@ import xyz.avarel.aria.Bot
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.core.commands.Command
 import xyz.avarel.core.commands.Dispatcher
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Label implementation where an [GuildMessageReceivedEvent] is filtered

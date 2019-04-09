@@ -5,15 +5,14 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
 import org.slf4j.LoggerFactory
-import java.util.*
 
 /**
  * Handles track scheduling, music queue, and repeat options.
  *
- * @param controller Main [MusicController] instance.
+ * @param instance Main [MusicInstance] instance.
  * @author Avarel
  */
-class TrackScheduler(private val controller: MusicController) : AudioEventAdapter() {
+class TrackScheduler(private val instance: MusicInstance) : AudioEventAdapter() {
     companion object {
         val LOG = LoggerFactory.getLogger(TrackScheduler::class.java)!!
     }
@@ -49,7 +48,7 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
      *        The track to play or add to offer.
      */
     fun offer(track: AudioTrack) {
-        if (!controller.player.startTrack(track, true)) {
+        if (!instance.player.startTrack(track, true)) {
             queue += track
         } else {
             LOG.debug("${track.info.title} playback started.")
@@ -74,11 +73,11 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
      */
     fun nextTrack() {
         if (queue.isEmpty()) {
-            controller.player.stopTrack()
+            instance.player.stopTrack()
             return
         }
         val track = queue.removeAt(0)
-        controller.player.startTrack(track, false)
+        instance.player.startTrack(track, false)
         LOG.debug("${track.info.title} playback started.")
     }
 

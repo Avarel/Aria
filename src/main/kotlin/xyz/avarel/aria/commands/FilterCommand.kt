@@ -12,7 +12,7 @@
 //)
 //class FilterCommand : AnnotatedCommand<MessageContext> {
 //    override suspend operator fun invoke(context: MessageContext) {
-//        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
+//        val instance = context.bot.musicManager.getExisting(context.guild.idLong)
 //                ?: return requireMusicControllerMessage(context)
 //
 //        if (context.args.size < 2) {
@@ -23,13 +23,13 @@
 //                ?: return invalidArgumentsMessage(context, "numeric value")
 //
 //        val settings = when (context.args[0].toLowerCase()) {
-//            "speed" -> controller.timescaleSettings.copy(speed = number)
-//            "pitch" -> controller.timescaleSettings.copy(pitch = number)
+//            "speed" -> instance.timescaleSettings.copy(speed = number)
+//            "pitch" -> instance.timescaleSettings.copy(pitch = number)
 //            else -> return invalidArgumentsMessage(context, "FilterCommand property")
 //        }
 //
-//        controller.enableFilter()
-//        controller.updateFilter(settings)
+//        instance.enableFilter()
+//        instance.updateFilter(settings)
 //
 //        context.channel.sendEmbed("Filter Settings") {
 //            desc { "Changed ${context.args[0].toLowerCase()} of the music player to `$number`." }

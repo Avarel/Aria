@@ -13,7 +13,8 @@ import xyz.avarel.aria.listener.MessageContextProducer
 import xyz.avarel.aria.listener.VoiceListener
 import xyz.avarel.aria.music.MusicManager
 import xyz.avarel.aria.utils.MessageContext
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.Dispatcher
 import xyz.avarel.core.commands.impl.DefaultCommandRegistry
 import xyz.avarel.core.store.FileStore
 import xyz.avarel.core.store.Store

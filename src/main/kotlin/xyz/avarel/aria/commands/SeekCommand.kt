@@ -1,38 +1,22 @@
 package xyz.avarel.aria.commands
 
-import xyz.avarel.aria.utils.*
-import xyz.avarel.core.commands.*
+import xyz.avarel.aria.utils.MessageContext
+import xyz.avarel.aria.utils.formatDuration
+import xyz.avarel.aria.utils.requireMusicControllerMessage
+import xyz.avarel.aria.utils.requirePlayingTrackMessage
+import xyz.avarel.core.commands.AnnotatedCommand
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.sendEmbed
 import java.time.Duration
 
-class SeekCommand : Command<MessageContext> {
-    override val aliases = arrayOf("seek", "jump")
-
-    override val info = info("Seek Command") {
-        desc { "Seek to a specific time within the track." }
-        usage {
-            options {
-                label("start")
-                label("beginning")
-            }
-        }
-        usage {
-            options {
-                label("plus")
-                label("forward")
-                label("+")
-            }
-            required { timestamp() }
-        }
-        usage {
-            options {
-                label("minus")
-                label("backward")
-                label("-")
-            }
-            required { timestamp() }
-        }
-    }
-
+@CommandInfo(
+        aliases = ["seek", "jump"],
+        title = "Seek Command",
+        description = "Seek to a specific time within the track",
+        usage = "[+|plus|forward|-|minus|backward] [[hh:]mm:]ss | start"
+)
+class SeekCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
@@ -42,10 +26,18 @@ class SeekCommand : Command<MessageContext> {
 
         context.parse {
             val duration = when {
-                nextMatch("Move to the start of the song.", "start", "beginning") -> Duration.ofSeconds(0)
-                nextMatch("Move forward by a certain amount of time.", "+", "plus", "forward") -> current + expectDuration("Amount of time the player should move forward.")
-                nextMatch("Move backward by a certain amount of time.", "-", "minus", "backward") -> current - expectDuration("Amount of time the player should move backwards.")
-                else -> expectDuration("The exact time that the player should move to.")
+                nextMatch("Move to the start of the song.", "start", "beginning") -> {
+                    Duration.ofSeconds(0)
+                }
+                nextMatch("Move forward by a certain amount of time.", "+", "plus", "forward") -> {
+                    current + expectDuration("Amount of time the player should move forward.")
+                }
+                nextMatch("Move backward by a certain amount of time.", "-", "minus", "backward") -> {
+                    current - expectDuration("Amount of time the player should move backwards.")
+                }
+                else -> {
+                    expectDuration("The exact time that the player should move to.")
+                }
             }
 
             track.position = duration.toMillis()

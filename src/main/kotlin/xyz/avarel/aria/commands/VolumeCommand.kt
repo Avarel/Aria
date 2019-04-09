@@ -3,20 +3,18 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.utils.progressBarTo
 import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.AnnotatedCommand
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.descBuilder
+import xyz.avarel.core.commands.sendEmbed
 
-class VolumeCommand : Command<MessageContext> {
-    override val aliases = arrayOf("volume", "v", "vol")
-
-    override val info = info("Volume Command") {
-        desc { "Set the volume of the music player." }
-        usage {
-            optional {
-                range(0, 150)
-            }
-        }
-    }
-
+@CommandInfo(
+        aliases = ["volume", "v", "vol"],
+        title = "Volume Command",
+        description = "View or set the volume.",
+        usage = "[1-150]"
+)
+class VolumeCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
@@ -25,7 +23,7 @@ class VolumeCommand : Command<MessageContext> {
 
         context.parse {
             if (hasNext()) {
-                val number = expectInt("The music player's new volume.")
+                val number = expectInt("The music player's new volume.", "[1-150]")
                 val volume = number.coerceIn(0, 150)
                 controller.player.volume = volume
                 context.bot.store[context.guild.id, "music", "volume"].setInt(volume)

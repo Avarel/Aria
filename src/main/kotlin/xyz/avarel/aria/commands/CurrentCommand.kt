@@ -4,18 +4,17 @@ import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 
-class CurrentCommand : Command<MessageContext> {
-    override val aliases = arrayOf("current", "nowplaying", "np")
-
-    override val info = info("Now Playing Command") {
-        desc { "Show currently playing music track." }
-    }
-
+@CommandInfo(
+        aliases = ["current", "nowplaying", "np"],
+        title = "Now Playing Command",
+        description = "Show currently playing music track."
+)
+class CurrentCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
+        val instance = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        val track = controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
+        val track = instance.player.playingTrack ?: return context.requirePlayingTrackMessage()
 
         context.channel.sendEmbed(track.info.title, track.info.uri) {
             author { track.info.author }
@@ -37,8 +36,8 @@ class CurrentCommand : Command<MessageContext> {
                 }
             }
 
-            field("Volume", true) { "${controller.player.volume}%" }
-            field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }
+            field("Volume", true) { "${instance.player.volume}%" }
+            field("Repeat Mode", true) { instance.scheduler.repeatMode.toString() }
 
             field("Requester", true) { track.trackContext.requester.asMention }
             field("Requested Channel", true) { track.trackContext.channel.asMention }

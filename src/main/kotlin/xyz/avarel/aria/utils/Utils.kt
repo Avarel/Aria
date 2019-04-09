@@ -6,6 +6,8 @@ import xyz.avarel.aria.music.TrackContext
 import java.time.Duration
 import java.util.regex.Pattern
 
+fun unreachable(): Nothing = error("Unreachable")
+
 fun <E> List<E>.partition(size: Int): List<List<E>> {
     val list = mutableListOf<List<E>>()
     var start = 0

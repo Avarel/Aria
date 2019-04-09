@@ -47,7 +47,7 @@ class VoiceListener(private val bot: Bot) : EventListener {
     private fun join(guild: Guild, channelJoined: VoiceChannel) {
         bot.musicManager.getExisting(guild.idLong)?.let { controller ->
             if (channelJoined == controller.channel) {
-                if (controller.isAlone!!) {
+                if (controller.isAlone) {
                     controller.setAutoDestroy(true)
                     if (controller.player.playingTrack != null) {
                         controller.player.isPaused = true
@@ -66,7 +66,7 @@ class VoiceListener(private val bot: Bot) : EventListener {
 
     private fun left(guild: Guild, channelLeft: VoiceChannel) {
         bot.musicManager.getExisting(guild.idLong)?.let { controller ->
-            if (channelLeft == controller.channel && controller.isAlone!!) {
+            if (channelLeft == controller.channel && controller.isAlone) {
                 controller.setAutoDestroy(true)
                 if (controller.player.playingTrack != null) {
                     controller.player.isPaused = true

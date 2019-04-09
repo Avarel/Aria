@@ -1,30 +1,18 @@
 package xyz.avarel.aria.commands
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
-import xyz.avarel.aria.music.MusicController
+import xyz.avarel.aria.music.MusicInstance
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
 
-class QueueCommand : Command<MessageContext> {
-    override val aliases = arrayOf("queue", "q")
-
-    override val info = info("Queue Command") {
-        desc { "Show the music queue." }
-        usage {
-            optional { number() }
-        }
-        usage {
-            label("remove")
-            options {
-                number()
-                label("start..end")
-                label("first")
-                label("last")
-            }
-        }
-    }
-
+@CommandInfo(
+        aliases = ["queue", "q"],
+        title = "Queue Command",
+        description = "Show the music queue.",
+        usage = "[#] | remove (#|start..end|first|last|all)"
+)
+class QueueCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
@@ -78,33 +66,33 @@ class QueueCommand : Command<MessageContext> {
         }
     }
 
-    private fun clear(context: MessageContext, controller: MusicController) {
-        val size = controller.queue.size
+    private fun clear(context: MessageContext, instance: MusicInstance) {
+        val size = instance.queue.size
         if (size == 0) return context.errorMessage("Queue is empty.")
 
-        controller.queue.clear()
+        instance.queue.clear()
 
         context.channel.sendEmbed("Music Queue") {
             desc { "Cleared all $size entries from the music queue." }
         }.queue()
     }
 
-    private fun remove(context: MessageContext, controller: MusicController) {
-        if (controller.queue.isEmpty()) return context.errorMessage("Queue is empty.")
+    private fun remove(context: MessageContext, instance: MusicInstance) {
+        if (instance.queue.isEmpty()) return context.errorMessage("Queue is empty.")
 
-        val queue = controller.queue
+        val queue = instance.queue
 
         context.parse {
             when {
-                nextMatch("Remove the first track.", "first") -> notifyRemovedTrack(context, controller.queue.removeAt(0))
-                nextMatch("Remove the last track.", "last") -> notifyRemovedTrack(context, controller.queue.removeAt(controller.queue.size - 1))
-                nextMatch("Remove all tracks.", "all") -> return clear(context, controller)
+                nextMatch("Remove the first track.", "first") -> notifyRemovedTrack(context, instance.queue.removeAt(0))
+                nextMatch("Remove the last track.", "last") -> notifyRemovedTrack(context, instance.queue.removeAt(instance.queue.size - 1))
+                nextMatch("Remove all tracks.", "all") -> return clear(context, instance)
                 else -> {
                     matchInt("Index of the music track.", "(index)") { index ->
                         if (index !in 1..queue.size) {
                             return context.invalidArgumentsMessage("track number `1..${queue.size}`")
                         }
-                        notifyRemovedTrack(context, controller.scheduler.remove(index - 1))
+                        notifyRemovedTrack(context, instance.scheduler.remove(index - 1))
                     } || matchRange(description = "Remove all tracks from `low` to `high` positions.") { range ->
                         val low = range.start.coerceAtLeast(1)
                         val high = range.endInclusive.coerceAtMost(queue.size)
@@ -113,7 +101,7 @@ class QueueCommand : Command<MessageContext> {
                             return context.errorMessage("The lower bound `$low` bound must not be greater than the upper bound `$high`.")
                         }
 
-                        val list = (low..high).map { controller.scheduler.remove(low - 1) }
+                        val list = (low..high).map { instance.scheduler.remove(low - 1) }
 
                         context.channel.sendEmbed("Remove ${list.size} Tracks") {
                             descBuilder {
@@ -128,7 +116,7 @@ class QueueCommand : Command<MessageContext> {
                                     appendln()
                                 }
                                 if (list.size > 10) {
-                                    append("... and ${list.size - 10} more songs.")
+                                    append("... and ${list.size - 10} more addedSongs.")
                                 }
                             }
                         }.queue()

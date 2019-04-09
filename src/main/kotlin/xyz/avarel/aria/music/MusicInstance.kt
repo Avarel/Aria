@@ -1,5 +1,6 @@
 package xyz.avarel.aria.music
 
+import ConnectResult
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import kotlinx.coroutines.GlobalScope
@@ -12,7 +13,6 @@ import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
-import java.util.*
 
 /**
  * Handles music playback for a specific guild.
@@ -24,24 +24,25 @@ import java.util.*
  * @param guild   [Guild] instance.
  * @author        Avarel
  */
-class MusicController(
+class MusicInstance(
         val bot: Bot,
         val manager: MusicManager,
         val player: AudioPlayer,
         val guild: Guild //TODO uncouple this
 ) {
     companion object {
-        val LOG = LoggerFactory.getLogger(MusicController::class.java)!!
-//        val defaultTimescale = TimescaleSettings()
+        val LOG = LoggerFactory.getLogger(MusicInstance::class.java)!!
     }
 
     init {
-        LOG.debug("Created a music controller for $guild.")
+        LOG.debug("Created a music instance for $guild.")
 
         bot.store[guild.id, "music", "volume"].getInt()?.let { volume ->
             player.volume = volume
         }
     }
+
+    //val controller = MusicControlListener(this)
 
     /**
      * @return Interface that handles track scheduling, music queue, and repeat options.
@@ -51,28 +52,29 @@ class MusicController(
     /**
      * @return Interface used to send audio to Discord through JDA.
      */
-    private val sendHandler: AudioSendHandler = AudioPlayerSendHandler(player)
+    val sendHandler: AudioSendHandler = AudioPlayerSendHandler(player)
 
     /**
-     * @return Voice channel the controller is connected to.
+     * @return Voice channel the instance is connected to.
      */
-    var channel: VoiceChannel? = null
+    lateinit var channel: VoiceChannel
 
     /**
      * @return True or false, depending on if the bot is alone in a voice channel.
      *         null if the bot isn't in a voice channel.
      */
-    val isAlone: Boolean? get() {
-        return channel?.members?.let { it.size == 1 && it[0] == guild.selfMember }
+    val isAlone: Boolean get() {
+        return channel.members.let { it.size == 1 && it[0] == guild.selfMember }
     }
 
     /**
-     * @return True if this controller is destroyed.
+     * @return True if this instance is destroyed.
      */
-    private var destroyed: Boolean = false
+    var destroyed: Boolean = false
+        private set
 
     /**
-     * @return The delayed task that destroys this controller.
+     * @return The delayed task that destroys this instance.
      */
     private var leaveJob: Job? = null
 
@@ -94,12 +96,12 @@ class MusicController(
     }
 
     /**
-     * Activate or deactivate the delayed task that destroys this controller.
+     * Activate or deactivate the delayed task that destroys this instance.
      */
     fun setAutoDestroy(autoDestroy: Boolean) {
         if (autoDestroy) {
             if (leaveJob == null) {
-                LOG.debug("Activate auto-destroy music controller for $guild.")
+                LOG.debug("Activate auto-destroy music instance for $guild.")
                 leaveJob = GlobalScope.launch {
                     delay(30 * 1000)
                     destroy()
@@ -107,32 +109,11 @@ class MusicController(
             }
         } else {
             if (leaveJob != null) {
-                LOG.debug("Cancelled auto-destroy music controller for $guild.")
+                LOG.debug("Cancelled auto-destroy music instance for $guild.")
                 leaveJob?.cancel()
                 leaveJob = null
             }
         }
-    }
-
-    /**
-     * Result of trying to [connect] to a voice channel.
-     */
-    enum class ConnectResult {
-        /**
-         * Successfully connected to the voice channel.
-         */
-        SUCCESS,
-
-        /**
-         * Could not connect to the voice channel because of the user
-         * limit and lacked the [Permission.VOICE_MOVE_OTHERS].
-         */
-        USER_LIMIT,
-
-        /**
-         * Insufficient permission ([Permission.VOICE_CONNECT]) to join the channel.
-         */
-        NO_PERMISSION
     }
 
     /**
@@ -172,7 +153,6 @@ class MusicController(
         guild.let {
             it.audioManager.closeAudioConnection()
             it.audioManager.sendingHandler = null
-            channel = null
         }
     }
 

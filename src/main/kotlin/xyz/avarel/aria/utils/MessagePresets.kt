@@ -9,7 +9,7 @@ fun requireMusicControllerMessage(context: MessageContext) {
         descBuilder {
             append("The bot is not currently connected to any voice channel.")
             appendln()
-            append("Try joining a channel using the command `join` first.")
+            append("Try making the bot join channel using the command `join` first.")
         }
     }.queue()
 }

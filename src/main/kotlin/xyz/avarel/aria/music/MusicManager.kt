@@ -1,7 +1,7 @@
 package xyz.avarel.aria.music
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager
@@ -25,12 +25,12 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 /**
- * Manage creation and handling of [MusicController] instances.
+ * Manage creation and handling of [MusicInstance] instances.
  *
  * @author Avarel
  */
 class MusicManager(private val bot: Bot) {
-    private val registry: MutableMap<Long, MusicController> = ConcurrentHashMap()
+    private val registry: MutableMap<Long, MusicInstance> = ConcurrentHashMap()
 
     /**
      * A factory that creates new [AudioPlayer] instances.
@@ -52,34 +52,49 @@ class MusicManager(private val bot: Bot) {
     }
 
     /**
-     * Get a [MusicController] for the guild or create a new one
+     * Get a [MusicInstance] for the guild or create a new one
      * if it doesn't currently exist.
      *
-     * @return A [MusicController] instance.
+     * @return A [MusicInstance] instance.
      * @throws IllegalStateException
      *         If the guild id doesn't exist in JDA.
      */
-    fun getOrCreate(guildID: Long): MusicController {
-        val guild = bot.shardManager.getGuildById(guildID)
-        if (guild == null) {
-            destroy(guildID)
-            throw IllegalStateException("Guild $guildID doesn't exist.")
-        }
-
+    fun getOrCreate(guildID: Long): MusicInstance {
         return registry.getOrPut(guildID) {
-            MusicController(bot, this, playerFactory.createPlayer(), guild)
+            create(guildID)
         }
     }
 
     /**
-     * Get a [MusicController] for the guild if it currently exist.
+     * Create a new [MusicInstance] for the guild.
+     *
+     * @return A [MusicInstance] instance.
+     * @throws IllegalStateException
+     *         If the guild id doesn't exist in JDA.
+     *         If the music instance for the guild already exists.
+     */
+    private fun create(guildID: Long): MusicInstance {
+        val guild = bot.shardManager.getGuildById(guildID)
+        if (guild == null) {
+            destroy(guildID)
+            error("Guild $guildID doesn't exist.")
+        }
+
+        if (registry.contains(guildID)) {
+            error("Music instance for $guildID already exist.")
+        }
+        return MusicInstance(bot, this, playerFactory.createPlayer(), guild)
+    }
+
+    /**
+     * Get a [MusicInstance] for the guild if it currently exist.
      *
      * @param  guildID
      *         Guild id.
-     * @return A [MusicController] instance if the registry currently
+     * @return A [MusicInstance] instance if the registry currently
      *         have one for the guild id `null` otherwise.
      */
-    fun getExisting(guildID: Long): MusicController? {
+    fun getExisting(guildID: Long): MusicInstance? {
         val guild = bot.shardManager.getGuildById(guildID)
         if (guild == null) {
             destroy(guildID)
@@ -90,7 +105,7 @@ class MusicManager(private val bot: Bot) {
     }
 
     /**
-     * Destroy and remove a [MusicController] associated with a guild
+     * Destroy and remove a [MusicInstance] associated with a guild
      * id if it exists.
      *
      * @param guildID
