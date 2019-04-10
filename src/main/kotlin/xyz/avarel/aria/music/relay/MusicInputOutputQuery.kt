@@ -17,28 +17,52 @@
 //import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack
 //import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 //import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo
-
 //import org.apache.http.client.config.CookieSpecs
 //import org.apache.http.client.config.RequestConfig
+//
 //import xyz.avarel.aria.music.RepeatMode
+//import xyz.avarel.aria.music.ConnectResult
 //
 //sealed class MusicQuery<T: MusicOutput> // no state changes
 //sealed class MusicInput<T: MusicOutput> // changes
 //sealed class MusicOutput
 //
-//object NoSongError: MusicOutput()
+//sealed class MusicResult<out T: MusicOutput> {
+//    fun expect(): T = ok() ?: error("Expected Ok, was $this")
+//
+//    fun ok(): T? = when (this) {
+//        is Ok -> value
+//        is Err -> null
+//    }
+//
+//    fun expectErr(): String = when (this) {
+//        is Ok -> error("Expected Err, was $this")
+//        is Err -> message
+//    }
+//
+//    data class Ok<out T: MusicOutput>(val value: T): MusicResult<T>()
+//    data class Err(val message: String): MusicResult<Nothing>()
+//}
+//
+//fun <T: MusicOutput> T.ok(): MusicResult<T> {
+//    return MusicResult.Ok(this)
+//}
+//
+//fun String.err(): MusicResult<Nothing> {
+//    return MusicResult.Err(this)
+//}
 //
 //object ChannelQuery : MusicQuery<ChannelOutput>()
 //class ChannelOutput(val channelId: Long): MusicOutput()
 //
 //class ChannelJoinInput(val targetChannelId: Long): MusicInput<ChannelJoinOutput>()
-//class ChannelJoinOutput(val result: ConnectResult): MusicOutput()
+//object ChannelJoinOutput: MusicOutput()
 //
 //object ChannelLeaveInput : MusicInput<ChannelLeaveOutput>()
-//class ChannelLeaveOutput(val leftChannelId: Long): MusicOutput()
+//object ChannelLeaveOutput: MusicOutput()
 //
 //class ChannelMoveInput(val targetChannelId: Long): MusicInput<ChannelMoveOutput>()
-//class ChannelMoveOutput(val result: ConnectResult?): MusicOutput()
+//object ChannelMoveOutput: MusicOutput()
 //
 //class PlayInput(val songs: List<MusicTrack>): MusicInput<PlayOutput>()
 //class PlayOutput(val addedSongs: List<MusicTrack>): MusicOutput()
@@ -64,7 +88,7 @@
 //class QueueRemoveInput(val index: Int): MusicInput<QueueRemoveOutput>()
 //class QueueRemoveOutput(val removedSongs: List<MusicTrack>): MusicOutput()
 //object QueueClearInput : MusicInput<QueueClearOutput>()
-//class QueueClearOutput(val success: Boolean): MusicOutput()
+//object QueueClearOutput: MusicOutput()
 //
 //data class MusicTrack(
 //        val source: TrackSource,
@@ -125,6 +149,10 @@
 //            info.isStream,
 //            info.uri
 //    )
+//}
+//
+//fun MusicTrack.toAudioTrack(): AudioTrack {
+//    return source.reconsitute(this)
 //}
 //
 ///**

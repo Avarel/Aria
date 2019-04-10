@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.core.commands.AnnotatedCommand
@@ -11,8 +11,10 @@ import xyz.avarel.core.commands.CommandInfo
 class TestCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         context.parse {
-            val what = expectInt("?")
-            println(what)
+            matchInt("Testing") {
+                println(it)
+            }
+            expectError()
         }
     }
 }

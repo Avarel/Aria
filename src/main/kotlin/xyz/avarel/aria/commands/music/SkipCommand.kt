@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.utils.requireMusicControllerMessage
@@ -15,11 +15,11 @@ import xyz.avarel.core.commands.sendEmbed
 )
 class SkipCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
+        val instance = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
-        val track = controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
+        val track = instance.player.playingTrack ?: return context.requirePlayingTrackMessage()
 
-        controller.skip()
+        instance.skip()
 
         context.channel.sendEmbed("Skip") {
             desc { "Skipped **${track.info.title}**." }

@@ -7,8 +7,6 @@ import xyz.avarel.core.commands.title
 import java.time.Duration
 import java.util.regex.Pattern
 
-private val range = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
-
 open class ArgumentParser(val ctx: MessageContext) {
     var index = 0
     val currentArguments = mutableListOf<String>()
@@ -75,7 +73,12 @@ open class ArgumentParser(val ctx: MessageContext) {
     /**
      * @return the next argument. Consumes the argument in the process.
      */
-    fun nextString(): String {
+    fun nextString(consumeRemaining: Boolean = false): String {
+        if (consumeRemaining) {
+            val list = ctx.arguments.subList(index, ctx.arguments.size)
+            index += list.size
+            return list.joinToString(" ")
+        }
         return ctx.arguments[index++]
     }
 
@@ -88,81 +91,71 @@ open class ArgumentParser(val ctx: MessageContext) {
             type: String = MatchNames.STRING,
             consumeRemaining: Boolean = false,
             block: ArgumentParser.(String) -> Unit
-    ): Boolean {
+    ) {
         if (!hasNext()) {
             possibleArguments += ArgumentInfo(type, description)
-            return false
+            return
         }
 
-        val value = if (consumeRemaining) {
-            val list = ctx.arguments.subList(index, ctx.arguments.size)
-            index += list.size
-            list.joinToString(" ")
-        } else {
-            nextString()
-        }
+        val value = nextString(consumeRemaining)
 
         currentArguments += value
         possibleArguments.clear()
         block(value)
-
-        return true
     }
 
     inline fun matchLabel(
             description: String,
             label: String,
             block: ArgumentParser.() -> Unit
-    ): Boolean {
+    ) {
         if (!hasNext() || !nextMatch(description, label)) {
             possibleArguments += ArgumentInfo(label, description)
-            return false
+            return
         }
 
         currentArguments += label
         possibleArguments.clear()
         block()
-
-        return true
     }
 
     inline fun matchInt(
             description: String,
             type: String = MatchNames.INT,
             block: ArgumentParser.(Int) -> Unit
-    ): Boolean {
-        return parseMatch(description, type, String::toIntOrNull, block)
+    ) {
+        parseMatch(description, type, String::toIntOrNull, block)
     }
 
     inline fun matchDouble(
             description: String,
             type: String = MatchNames.DOUBLE,
             block: ArgumentParser.(Double) -> Unit
-    ): Boolean {
-        return parseMatch(description, type, String::toDoubleOrNull, block)
+    ) {
+        parseMatch(description, type, String::toDoubleOrNull, block)
     }
 
     inline fun matchDuration(
             description: String,
             type: String = MatchNames.DURATION,
             block: ArgumentParser.(Duration) -> Unit
-    ): Boolean {
-        return parseMatch(description, type, String::toDurationOrNull, block)
+    ) {
+        parseMatch(description, type, String::toDurationOrNull, block)
     }
 
     inline fun matchRange(
             description: String,
             type: String = MatchNames.GENERIC_RANGE,
             block: ArgumentParser.(IntRange) -> Unit
-    ): Boolean {
-        return parseMatch(description, type, String::toRangeOrNull, block)
+    ) {
+        parseMatch(description, type, String::toRangeOrNull, block)
     }
 
     inline fun <reified T: Enum<T>> matchEnum(
             type: String = MatchNames.enumName<T>(),
             description: String? = MatchNames.enumDesc<T>(),
             block: ArgumentParser.(T) -> Unit
-    ): Boolean {
+    ) {
         val string = peekString()
         val value = string?.let {
             try {
@@ -174,15 +167,13 @@ open class ArgumentParser(val ctx: MessageContext) {
 
         if (value == null) {
             possibleArguments += ArgumentInfo(type, description)
-            return false
+            return
         }
 
         index++
         currentArguments += string
         possibleArguments.clear()
         block(value)
-
-        return true
     }
 
     inline fun <T> parseMatch(
@@ -190,21 +181,23 @@ open class ArgumentParser(val ctx: MessageContext) {
             type: String,
             parse: (String) -> T?,
             block: ArgumentParser.(T) -> Unit
-    ): Boolean {
+    ) {
         val string = peekString()
         val value = string?.let(parse)
 
         if (value == null) {
             possibleArguments += ArgumentInfo(type, description)
-            return false
+            return
         }
 
+        resetForNextArgument(string)
+        block(value)
+    }
+
+    fun resetForNextArgument(string: String) {
         index++
         currentArguments += string
         possibleArguments.clear()
-        block(value)
-
-        return true
     }
 
     fun otherwise(block: ArgumentParser.() -> Unit): Boolean {
@@ -212,7 +205,7 @@ open class ArgumentParser(val ctx: MessageContext) {
         return true
     }
 
-    fun matchError(): Boolean {
+    fun sendError() {
         ctx.channel.sendEmbed {
             title {
                 if (hasNext()) {
@@ -266,7 +259,6 @@ open class ArgumentParser(val ctx: MessageContext) {
                 }
             }
         }.queue()
-        return true
     }
 }
 

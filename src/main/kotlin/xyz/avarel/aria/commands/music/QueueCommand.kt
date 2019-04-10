@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.music.MusicInstance
@@ -14,21 +14,21 @@ import java.time.Duration
 )
 class QueueCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
+        val instance = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        if (controller.queue.isEmpty()) {
+        if (instance.queue.isEmpty()) {
             return context.errorMessage("The queue is empty.")
         }
 
         context.parse {
             when {
-                nextMatch("Remove all tracks from the queue.", "clear", "clr") -> return clear(context, controller)
-                nextMatch("Remove specific tracks from the queue.", "remove", "rm") -> return remove(context, controller)
+                nextMatch("Remove all tracks from the queue.", "clear", "clr") -> return clear(context, instance)
+                nextMatch("Remove specific tracks from the queue.", "remove", "rm") -> return remove(context, instance)
             }
 
             val itemsPerPage = 10
-            val pages = controller.queue.partition(itemsPerPage)
+            val pages = instance.queue.partition(itemsPerPage)
 
             val pg = if (hasNext()) {
                 expectInt("Display the tracks queued on page `(number)`.")
@@ -52,14 +52,14 @@ class QueueCommand : AnnotatedCommand<MessageContext>() {
                     }
                 }
 
-                field("Size", true) { controller.queue.size.toString() }
+                field("Size", true) { instance.queue.size.toString() }
                 field("Duration", true) {
-                    val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
+                    val duration = (instance.player.playingTrack?.remainingDuration ?: 0) - instance.scheduler.duration
                     Duration.ofMillis(duration).formatDuration()
                 }
-                field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }
+                field("Repeat Mode", true) { instance.scheduler.repeatMode.toString() }
 
-                field("Now Playing") { controller.player.playingTrack?.info?.title ?: "Nothing" }
+                field("Now Playing") { instance.player.playingTrack?.info?.title ?: "Nothing" }
 
                 footer { "Page $pg/${pages.size}" }
             }.queue()
@@ -93,7 +93,9 @@ class QueueCommand : AnnotatedCommand<MessageContext>() {
                             return context.invalidArgumentsMessage("track number `1..${queue.size}`")
                         }
                         notifyRemovedTrack(context, instance.scheduler.remove(index - 1))
-                    } || matchRange(description = "Remove all tracks from `low` to `high` positions.") { range ->
+                        return
+                    }
+                    matchRange(description = "Remove all tracks from `low` to `high` positions.") { range ->
                         val low = range.start.coerceAtLeast(1)
                         val high = range.endInclusive.coerceAtMost(queue.size)
 
@@ -120,7 +122,9 @@ class QueueCommand : AnnotatedCommand<MessageContext>() {
                                 }
                             }
                         }.queue()
-                    } || matchError()
+                        return
+                    }
+                    expectError()
                 }
             }
         }

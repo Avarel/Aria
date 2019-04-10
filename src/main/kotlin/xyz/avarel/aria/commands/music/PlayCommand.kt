@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
@@ -15,7 +15,7 @@ import java.time.Duration
 )
 class PlayCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
+        val instance = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
         context.parse {
@@ -42,7 +42,7 @@ class PlayCommand : AnnotatedCommand<MessageContext>() {
                     val track = list[0]
                     setTitle(track.info.title, track.info.uri)
                     author { track.info.author }
-                    image { track.thumbnail }
+                    image { track.getThumbnail() }
                 } else {
                     title { "${list.size} Songs" }
                     descBuilder {
@@ -61,7 +61,7 @@ class PlayCommand : AnnotatedCommand<MessageContext>() {
 
                 field("Duration", true) { Duration.ofMillis(list.sumByLong(AudioTrack::getDuration)).formatDuration() }
                 field("Time Until Play", true) {
-                    val duration = controller.scheduler.duration - (controller.player.playingTrack?.remainingDuration ?: 0)
+                    val duration = instance.scheduler.duration - (instance.player.playingTrack?.remainingDuration ?: 0)
                     Duration.ofMillis(duration).formatDuration()
                 }
 
@@ -70,9 +70,9 @@ class PlayCommand : AnnotatedCommand<MessageContext>() {
 
             }.await()
 
-            list.forEach(controller.scheduler::offer)
+            list.forEach(instance.scheduler::offer)
 
-            controller.setAutoDestroy(false)
+            instance.setAutoDestroy(false)
         }
     }
 }

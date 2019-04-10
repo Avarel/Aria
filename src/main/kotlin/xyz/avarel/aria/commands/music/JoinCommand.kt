@@ -1,6 +1,6 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
-import ConnectResult
+import xyz.avarel.aria.music.ConnectResult
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.core.commands.*
 

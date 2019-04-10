@@ -33,6 +33,7 @@ class VoiceListener(private val bot: Bot) : EventListener {
             controller.connect(event.channelJoined)
         }
 
+        left(event.guild, event.channelLeft)
         join(event.guild, event.channelJoined)
     }
 

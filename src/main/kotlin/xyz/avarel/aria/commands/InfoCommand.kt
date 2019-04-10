@@ -14,25 +14,18 @@ import xyz.avarel.core.commands.*
 class InfoCommand : AnnotatedCommand<MessageContext>() {
     override suspend fun invoke(context: MessageContext) {
         context.parse {
-            var num = 1
+            val num = optionalInt()
+            if (num == null && hasNext()) {
+                val label = expectString("Specific command name.", "[command name]")
+                val cmd = context.bot.commandRegistry[label]
+                        ?: return context.errorMessage("Command `$label` does not exist.")
 
-            if (hasNext()) {
-                val pg = optionalInt()
-
-                if (pg == null) {
-                    val label = expectString("Specific command name.", "[command name]")
-                    val cmd = context.bot.commandRegistry[label]
-                            ?: return context.errorMessage("Command `$label` does not exist.")
-
-                    context.channel.sendEmbed(cmd.title) {
-                        field("All Aliases") { cmd.aliases.joinToString("` `", "`", "`") }
-                        field("Description") { cmd.description }
-                        field("Usage") { "```${cmd.aliases[0]} ${cmd.usage}```" }
-                    }.queue()
-                    return
-                } else {
-                    num = pg
-                }
+                context.channel.sendEmbed(cmd.title) {
+                    field("All Aliases") { cmd.aliases.joinToString("` `", "`", "`") }
+                    field("Description") { cmd.description }
+                    field("Usage") { "```${cmd.aliases[0]} ${cmd.usage}```" }
+                }.queue()
+                return
             }
 
             context.channel.sendEmbed("Information") {
@@ -45,7 +38,7 @@ class InfoCommand : AnnotatedCommand<MessageContext>() {
                 val itemsPerPage = 12
                 val pages = context.bot.commandRegistry.entries.toList().partition(itemsPerPage)
 
-                val pg = num.coerceIn(1, pages.size)
+                val pg = num?.coerceIn(1, pages.size) ?: 1
 
                 val list = pages[pg - 1]
 

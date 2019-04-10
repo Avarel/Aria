@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.utils.await

@@ -1,6 +1,8 @@
+package xyz.avarel.aria.music
 
 import net.dv8tion.jda.core.Permission
 
+@Deprecated(message = "Will be replaced soon with the coming of music controller")
 enum class ConnectResult {
     /**
      * Successfully connected to the voice channel.

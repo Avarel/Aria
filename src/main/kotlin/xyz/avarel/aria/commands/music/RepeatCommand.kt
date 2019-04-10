@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import xyz.avarel.aria.music.RepeatMode
 import xyz.avarel.aria.utils.MessageContext
@@ -19,7 +19,7 @@ class RepeatCommand : AnnotatedCommand<MessageContext>() {
                 ?: return requireMusicControllerMessage(context)
 
         context.parse {
-            val repeat = expectEnum<RepeatMode>()
+            val repeat = expectEnum<RepeatMode>(description = "(repeat mode)")
             controller.repeatMode = repeat
 
             context.channel.sendEmbed("Repeat") {

@@ -1,6 +1,5 @@
 package xyz.avarel.aria.music
 
-import ConnectResult
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import kotlinx.coroutines.GlobalScope
@@ -13,6 +12,9 @@ import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
+import xyz.avarel.aria.utils.trackContext
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.sendEmbed
 
 /**
  * Handles music playback for a specific guild.
@@ -42,7 +44,7 @@ class MusicInstance(
         }
     }
 
-    //val controller = MusicControlListener(this)
+//    val controller = MusicControlListener(this)
 
     /**
      * @return Interface that handles track scheduling, music queue, and repeat options.
@@ -60,11 +62,12 @@ class MusicInstance(
     lateinit var channel: VoiceChannel
 
     /**
+     * The bot is defined as alone in a channel if all of the channel consists of bots.
      * @return True or false, depending on if the bot is alone in a voice channel.
      *         null if the bot isn't in a voice channel.
      */
     val isAlone: Boolean get() {
-        return channel.members.let { it.size == 1 && it[0] == guild.selfMember }
+        return channel.members.all { it.user.isBot }
     }
 
     /**
@@ -104,6 +107,10 @@ class MusicInstance(
                 LOG.debug("Activate auto-destroy music instance for $guild.")
                 leaveJob = GlobalScope.launch {
                     delay(30 * 1000)
+                    LOG.debug("Automatically destroying music instance for $guild")
+                    scheduler.lastTrack?.trackContext?.channel?.sendEmbed("Automatic Leave") {
+                        desc { "The bot has disconnected because it was left alone for more than half a minute." }
+                    }?.queue()
                     destroy()
                 }
             }

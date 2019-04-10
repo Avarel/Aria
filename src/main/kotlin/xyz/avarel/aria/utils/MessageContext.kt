@@ -28,8 +28,8 @@ data class MessageContext internal constructor(
         (parser as ExpectArgumentParser).also {
             try {
                 it.block()
-            } catch (e: ExpectArgumentException) {
-                it.matchError()
+            } catch (e: ArgumentParsingException) {
+                it.sendError()
             }
         }
     }

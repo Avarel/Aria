@@ -12,7 +12,7 @@ argParse(arg) {
 
  */
 
-class ExpectArgumentException : RuntimeException()
+class ArgumentParsingException : RuntimeException()
 
 class ExpectArgumentParser(ctx: MessageContext) : ArgumentParser(ctx) {
     fun expectString(description: String, type: String = MatchNames.STRING, consumeRemaining: Boolean = false): String {
@@ -62,6 +62,6 @@ class ExpectArgumentParser(ctx: MessageContext) : ArgumentParser(ctx) {
     }
 
     fun expectError(): Nothing {
-        throw ExpectArgumentException()
+        throw ArgumentParsingException()
     }
 }

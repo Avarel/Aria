@@ -1,12 +1,14 @@
 package xyz.avarel.aria.utils
 
+import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioTrack
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import kotlinx.coroutines.withTimeoutOrNull
+import okhttp3.*
+import org.jsoup.Jsoup
 import xyz.avarel.aria.music.TrackContext
-import java.time.Duration
-import java.util.regex.Pattern
 
-fun unreachable(): Nothing = error("Unreachable")
+val okHttp = OkHttpClient()
 
 fun <E> List<E>.partition(size: Int): List<List<E>> {
     val list = mutableListOf<List<E>>()
@@ -18,47 +20,26 @@ fun <E> List<E>.partition(size: Int): List<List<E>> {
     return list
 }
 
-fun Duration.formatDuration(): String {
-    if (this.toMillis() == Long.MAX_VALUE) return "∞"
-
-    val s = this.seconds
-    val m = s / 60
-    val h = m / 60
-
-    return "%02d:%02d:%02d".format(h, m % 60, s % 60)
-}
-
-private val durationPattern = Pattern.compile("(?:(?:(\\d+):)?(\\d{1,2}):)?(\\d{1,2})")
-
-fun String.toDurationOrNull(): Duration? {
-    val matcher = durationPattern.matcher(this)
-    if (!matcher.matches()) return null
-    val h = matcher.group(1)?.toInt() ?: 0
-    val m = matcher.group(2)?.toInt() ?: 0
-    val s = matcher.group(3)?.toInt() ?: 0
-    return Duration.ofSeconds(h * 3600L + m * 60L + s)
-}
-
-private val rangePattern = Pattern.compile("(\\d+)?(?:\\.\\.|-)(\\d+)?")
-
-fun String.toRangeOrNull(): IntRange? {
-    val matcher = rangePattern.matcher(this)
-    if (!matcher.matches()) return null
-    val low = matcher.group(1)?.toInt() ?: Integer.MIN_VALUE
-    val high = matcher.group(2)?.toInt() ?: Integer.MAX_VALUE
-    return low..high
-}
-
 val AudioTrack.remainingDuration: Long
     get() = this.duration - this.position
 
-val AudioTrack.thumbnail: String?
-    get() {
-        return when (this) {
-            is YoutubeAudioTrack -> "https://img.youtube.com/vi/$identifier/0.jpg"
-            else -> null
+suspend fun AudioTrack.getThumbnail(): String? {
+    return when (this) {
+        is YoutubeAudioTrack -> "https://img.youtube.com/vi/$identifier/0.jpg"
+        is SoundCloudAudioTrack -> {
+            val xml = withTimeoutOrNull(2000) {
+                okHttp.newCall(Request.Builder().url(info.uri).build()).await()
+            } ?: return null
+            val html = Jsoup.parse(xml)
+            return html.head().selectFirst("[property=og:image]").attr("content").also(::println)
         }
+        else -> null
     }
+}
+
+suspend fun extractSoundCloudThumbnail(track: AudioTrack) {
+
+}
 
 inline val AudioTrack.trackContext: TrackContext
     get() = this.userData as TrackContext

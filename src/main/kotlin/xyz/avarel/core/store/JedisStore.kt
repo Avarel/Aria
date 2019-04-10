@@ -5,7 +5,7 @@ import redis.clients.jedis.JedisPool
 import redis.clients.jedis.exceptions.JedisConnectionException
 
 /**
- * [Store] implementation using Jedis, an client interface for
+ * [Store] implementation using Jedis, an okHttp interface for
  * the Redis key-value store.
  *
  * @author Avarel

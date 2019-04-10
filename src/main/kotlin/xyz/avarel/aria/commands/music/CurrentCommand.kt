@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
@@ -42,7 +42,7 @@ class CurrentCommand : AnnotatedCommand<MessageContext>() {
             field("Requester", true) { track.trackContext.requester.asMention }
             field("Requested Channel", true) { track.trackContext.channel.asMention }
 
-            image { track.thumbnail }
+            image { track.getThumbnail() }
         }.queue()
     }
 }

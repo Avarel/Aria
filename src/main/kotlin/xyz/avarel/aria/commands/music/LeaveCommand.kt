@@ -1,4 +1,4 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
 import xyz.avarel.aria.utils.MessageContext
 import xyz.avarel.aria.utils.requireMusicControllerMessage
@@ -8,24 +8,20 @@ import xyz.avarel.core.commands.desc
 import xyz.avarel.core.commands.sendEmbed
 
 @CommandInfo(
-        aliases = ["pause"],
-        title = "Pause Command",
-        description = "Pause the music player."
+        aliases = ["leave", "l"],
+        title = "Leave Music Channel Command",
+        description = "Make the bot leave its current voice channel."
 )
-class PauseCommand : AnnotatedCommand<MessageContext>() {
+class LeaveCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
         val instance = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
 
-        instance.player.isPaused = !instance.player.isPaused
+        val vc = instance.channel // assumption
+        instance.destroy()
 
-        context.channel.sendEmbed("Playback") {
-            desc {
-                when (instance.player.isPaused) {
-                    true -> "Music playback has paused."
-                    else -> "Music playback has resumed."
-                }
-            }
+        context.channel.sendEmbed("Left Voice Channel") {
+            desc { "The bot has left the voice channel `${vc.name}`." }
         }.queue()
     }
 }

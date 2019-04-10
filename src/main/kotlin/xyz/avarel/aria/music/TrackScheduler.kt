@@ -4,6 +4,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
+import net.dv8tion.jda.core.entities.TextChannel
 import org.slf4j.LoggerFactory
 
 /**
@@ -51,6 +52,7 @@ class TrackScheduler(private val instance: MusicInstance) : AudioEventAdapter() 
         if (!instance.player.startTrack(track, true)) {
             queue += track
         } else {
+            this.lastTrack = track
             LOG.debug("${track.info.title} playback started.")
         }
     }
@@ -77,6 +79,7 @@ class TrackScheduler(private val instance: MusicInstance) : AudioEventAdapter() 
             return
         }
         val track = queue.removeAt(0)
+        this.lastTrack = track
         instance.player.startTrack(track, false)
         LOG.debug("${track.info.title} playback started.")
     }
@@ -97,7 +100,6 @@ class TrackScheduler(private val instance: MusicInstance) : AudioEventAdapter() 
      *        The reason why the track stopped playing
      */
     override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
-        this.lastTrack = track
         LOG.debug("${track.info.title} playback ended.")
 
         if (endReason.mayStartNext) {

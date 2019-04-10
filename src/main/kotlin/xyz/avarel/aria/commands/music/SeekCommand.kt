@@ -1,9 +1,6 @@
-package xyz.avarel.aria.commands
+package xyz.avarel.aria.commands.music
 
-import xyz.avarel.aria.utils.MessageContext
-import xyz.avarel.aria.utils.formatDuration
-import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.aria.utils.requirePlayingTrackMessage
+import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.AnnotatedCommand
 import xyz.avarel.core.commands.CommandInfo
 import xyz.avarel.core.commands.desc
@@ -18,9 +15,13 @@ import java.time.Duration
 )
 class SeekCommand : AnnotatedCommand<MessageContext>() {
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
+        val instance = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)
-        val track = controller.player.playingTrack ?: return context.requirePlayingTrackMessage()
+        val track = instance.player.playingTrack ?: return context.requirePlayingTrackMessage()
+
+        if (instance.isAlone) {
+            return context.errorMessage("No one is in the music channel right now.")
+        }
 
         val current = Duration.ofMillis(track.position)
 
