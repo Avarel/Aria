@@ -1,7 +1,5 @@
 package xyz.avarel.core.commands
 
-import java.lang.IllegalStateException
-
 data class CommandInfo(
         val title: String,
         val description: String?,

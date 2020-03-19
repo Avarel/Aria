@@ -5,12 +5,13 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.music.TrackContext
 import java.time.Duration
 import java.util.regex.Pattern
+import kotlin.math.min
 
 fun <E> List<E>.partition(size: Int): List<List<E>> {
     val list = mutableListOf<List<E>>()
     var start = 0
     while (start < this.size) {
-        list.add(subList(start, Math.min(start + size, this.size)))
+        list.add(subList(start, min(start + size, this.size)))
         start += size
     }
     return list

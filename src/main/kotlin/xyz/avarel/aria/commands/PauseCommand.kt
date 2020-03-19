@@ -3,7 +3,10 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.aria.utils.requirePlayingTrackMessage
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.info
+import xyz.avarel.core.commands.sendEmbed
 
 class PauseCommand : Command<MessageContext> {
     override val aliases = arrayOf("pause")

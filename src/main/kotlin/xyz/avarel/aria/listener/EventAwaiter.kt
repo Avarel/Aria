@@ -1,6 +1,5 @@
 package xyz.avarel.aria.listener
 
-import net.dv8tion.jda.api.events.Event
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.hooks.EventListener
 import java.util.concurrent.ConcurrentHashMap

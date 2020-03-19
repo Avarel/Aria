@@ -1,7 +1,6 @@
 package xyz.avarel.aria.music
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -12,7 +11,6 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
-import java.util.*
 
 /**
  * Handles music playback for a specific guild.

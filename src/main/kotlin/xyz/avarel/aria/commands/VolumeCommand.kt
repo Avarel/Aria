@@ -3,7 +3,10 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.progressBarTo
 import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.descBuilder
+import xyz.avarel.core.commands.info
+import xyz.avarel.core.commands.sendEmbed
 
 class VolumeCommand : Command<MessageContext> {
     override val aliases = arrayOf("volume", "v", "vol")

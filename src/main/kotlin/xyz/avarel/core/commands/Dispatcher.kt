@@ -1,8 +1,8 @@
 package xyz.avarel.core.commands
 
-import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ObsoleteCoroutinesApi
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
 /**

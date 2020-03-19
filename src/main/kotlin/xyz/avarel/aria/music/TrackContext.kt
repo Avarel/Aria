@@ -1,8 +1,8 @@
 package xyz.avarel.aria.music
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.TextChannel
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 
 /**
  * Context class for an [AudioTrack].

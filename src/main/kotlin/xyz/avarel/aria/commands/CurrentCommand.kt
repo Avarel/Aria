@@ -1,6 +1,6 @@
 package xyz.avarel.aria.commands
 
-import xyz.avarel.aria.*
+import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
@@ -10,7 +10,6 @@ class CurrentCommand : Command<MessageContext> {
 
     override val info = info("Now Playing Command") {
         desc { "Show currently playing music track." }
-
     }
 
     override suspend operator fun invoke(context: MessageContext) {

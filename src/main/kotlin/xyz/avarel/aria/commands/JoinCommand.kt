@@ -1,7 +1,7 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.music.MusicController.*
+import xyz.avarel.aria.music.MusicController.ConnectResult
 import xyz.avarel.core.commands.*
 
 class JoinCommand : Command<MessageContext> {

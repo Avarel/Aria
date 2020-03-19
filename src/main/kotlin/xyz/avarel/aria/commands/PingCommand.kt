@@ -2,7 +2,10 @@ package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.await
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.field
+import xyz.avarel.core.commands.info
+import xyz.avarel.core.commands.sendEmbed
 
 class PingCommand : Command<MessageContext> {
     override val aliases = arrayOf("ping")

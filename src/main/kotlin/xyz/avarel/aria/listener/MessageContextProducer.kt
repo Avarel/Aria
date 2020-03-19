@@ -1,7 +1,6 @@
 package xyz.avarel.aria.listener
 
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.events.Event
 import net.dv8tion.jda.api.events.GenericEvent
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.EventListener
@@ -9,7 +8,7 @@ import xyz.avarel.aria.Bot
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.Command
 import xyz.avarel.core.commands.Dispatcher
-import java.util.ArrayList
+import java.util.*
 
 /**
  * Label implementation where an [GuildMessageReceivedEvent] is filtered

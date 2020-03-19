@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
 import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.utils.ChunkingFilter
 import net.dv8tion.jda.api.utils.MemberCachePolicy
 import net.dv8tion.jda.api.utils.SessionControllerAdapter
 import net.dv8tion.jda.api.utils.cache.CacheFlag
@@ -71,7 +72,7 @@ class Bot(
 
         val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
 
-        shardManager = DefaultShardManagerBuilder.create(token, EnumSet.allOf(GatewayIntent::class.java)).apply {
+        shardManager = DefaultShardManagerBuilder.createDefault(token).apply {
             setShardsTotal(1)
             setShards(0, 0)
 
@@ -79,18 +80,20 @@ class Bot(
             setMaxReconnectDelay(32)
             setSessionController(SessionControllerAdapter())
 
+            setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES)
             setMemberCachePolicy(MemberCachePolicy.ONLINE)
-            setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS))
+            setChunkingFilter(ChunkingFilter.NONE)
+            setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE))
 
             // JDA-NAS does not have darwin naties.
             System.getProperty("os.name").let {
                 if (it.indexOf("darwin", ignoreCase = true) < 0 && it.indexOf("mac", ignoreCase = true) < 0) {
-                    setAudioSendFactory(NativeAudioSendFactory(800))
+                    setAudioSendFactory(NativeAudioSendFactory())
                 }
             }
 
             addEventListeners(ctxProducer, VoiceListener(this@Bot), InitialListener(this@Bot))
-            setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS, "$prefix | I'm alive!"))
+            setActivity(Activity.playing("${prefix}help | I'm alive!"))
         }.build()
 
         LOG.info("Building bot.")

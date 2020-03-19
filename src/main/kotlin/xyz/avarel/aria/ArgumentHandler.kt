@@ -4,7 +4,7 @@ import xyz.avarel.aria.utils.toDurationOrNull
 import java.time.Duration
 import java.util.regex.Pattern
 
-private val pattern = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
+private val rangePattern = Pattern.compile("(\\d+)?\\s*?(?:\\.\\.|-)\\s*(\\d+)?")
 
 class ArgumentHandler(private val list: List<String>) {
     var index = 0

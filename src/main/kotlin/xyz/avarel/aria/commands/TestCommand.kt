@@ -1,7 +1,8 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.info
 
 class TestCommand : Command<MessageContext> {
     override val aliases = arrayOf("test")

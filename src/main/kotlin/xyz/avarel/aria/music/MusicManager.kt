@@ -1,7 +1,7 @@
 package xyz.avarel.aria.music
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager
 import com.sedmelluq.discord.lavaplayer.source.bandcamp.BandcampAudioSourceManager
@@ -113,7 +113,7 @@ class MusicManager(private val bot: Bot) {
                 override fun playlistLoaded(playlist: AudioPlaylist) {
                     cont.resume(playlist.tracks.let {
                         if (maxResults != -1) {
-                            it.subList(0, Math.min(maxResults, playlist.tracks.size))
+                            it.subList(0, maxResults.coerceAtMost(playlist.tracks.size))
                         } else it
                     })
                 }

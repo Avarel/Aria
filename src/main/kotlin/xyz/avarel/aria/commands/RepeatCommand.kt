@@ -3,7 +3,10 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.music.RepeatMode
 import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.info
+import xyz.avarel.core.commands.sendEmbed
 
 class RepeatCommand : Command<MessageContext> {
     override val aliases = arrayOf("repeat")
