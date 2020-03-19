@@ -1,9 +1,10 @@
 package xyz.avarel.aria.listener
 
-import net.dv8tion.jda.core.JDA
-import net.dv8tion.jda.core.events.Event
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent
-import net.dv8tion.jda.core.hooks.EventListener
+import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.events.Event
+import net.dv8tion.jda.api.events.GenericEvent
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
+import net.dv8tion.jda.api.hooks.EventListener
 import xyz.avarel.aria.Bot
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.Command
@@ -46,7 +47,7 @@ class MessageContextProducer(
         return parts
     }
 
-    override fun onEvent(event: Event) {
+    override fun onEvent(event: GenericEvent) {
         if (event is GuildMessageReceivedEvent) {
             if (event.message.contentRaw.startsWith(bot.prefix)) {
                 val list = stringSplit(event.message.contentRaw)

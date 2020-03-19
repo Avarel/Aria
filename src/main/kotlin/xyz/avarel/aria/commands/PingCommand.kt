@@ -18,7 +18,7 @@ class PingCommand : Command<MessageContext> {
 
         context.channel.sendEmbed("Pong!") {
             field("REST", true) { elapsed.toString() }
-            field("Gateway", true) { context.bot.shardManager.averagePing.toInt().toString() }
+            field("Gateway", true) { context.bot.shardManager.averageGatewayPing.toInt().toString() }
         }.queue()
     }
 }

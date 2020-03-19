@@ -38,7 +38,7 @@ class PlayCommand : Command<MessageContext> {
 
         val track = list[0]
 
-        track.userData = TrackContext(context.member, context.textChannel)
+        track.userData = TrackContext(context.member!!, context.textChannel)
 
         context.channel.sendEmbed(track.info.title, track.info.uri) {
             setAuthor(track.info.author)
@@ -50,7 +50,7 @@ class PlayCommand : Command<MessageContext> {
             }
 
             field("Requester", true) { track.trackContext.requester.asMention }
-            field("Requested Channel", true) { track.trackContext.channel.asMention }
+            field("Requested Channel", true) { track.trackContext.requestChannel.asMention }
 
             image { track.thumbnail }
         }.await()

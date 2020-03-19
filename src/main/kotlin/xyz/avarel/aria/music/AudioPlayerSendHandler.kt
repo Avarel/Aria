@@ -3,7 +3,7 @@ package xyz.avarel.aria.music
 import com.sedmelluq.discord.lavaplayer.format.StandardAudioDataFormats
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame
-import net.dv8tion.jda.core.audio.AudioSendHandler
+import net.dv8tion.jda.api.audio.AudioSendHandler
 import java.nio.ByteBuffer
 
 /**
@@ -19,7 +19,7 @@ class AudioPlayerSendHandler(private val audioPlayer: AudioPlayer) : AudioSendHa
 
     override fun canProvide() = audioPlayer.provide(lastFrame)
 
-    override fun provide20MsAudio() = lastFrame.data!!
+    override fun provide20MsAudio() = ByteBuffer.wrap(lastFrame.data)!!
 
     override fun isOpus() = true
 }

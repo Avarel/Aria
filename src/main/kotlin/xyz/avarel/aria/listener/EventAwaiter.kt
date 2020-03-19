@@ -1,16 +1,17 @@
 package xyz.avarel.aria.listener
 
-import net.dv8tion.jda.core.events.Event
-import net.dv8tion.jda.core.hooks.EventListener
+import net.dv8tion.jda.api.events.Event
+import net.dv8tion.jda.api.events.GenericEvent
+import net.dv8tion.jda.api.hooks.EventListener
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class EventAwaiter : EventListener {
-    private val map: MutableMap<Class<*>, MutableSet<AwaitingPoint<Event>>> = ConcurrentHashMap()
+    private val map: MutableMap<Class<*>, MutableSet<AwaitingPoint<GenericEvent>>> = ConcurrentHashMap()
 
-    override fun onEvent(event: Event) {
+    override fun onEvent(event: GenericEvent) {
         map[event.javaClass]?.forEach { point ->
             if (point.predicate(event)) {
                 point.cont.resume(event)
@@ -19,15 +20,15 @@ class EventAwaiter : EventListener {
     }
 
     @Suppress("UNCHECKED_CAST")
-    suspend fun <T : Event> wait(cls: Class<T>, predicate: (T) -> Boolean): T {
+    suspend fun <T: GenericEvent> wait(cls: Class<T>, predicate: (T) -> Boolean): T {
         return suspendCoroutine { cont ->
-            map.getOrPut(cls) { ConcurrentHashMap.newKeySet() } += AwaitingPoint(predicate, cont) as AwaitingPoint<Event>
+            map.getOrPut(cls) { ConcurrentHashMap.newKeySet() } += AwaitingPoint(predicate, cont) as AwaitingPoint<GenericEvent>
         }
     }
 
-    suspend inline fun <reified T : Event> wait(noinline predicate: (T) -> Boolean): T {
+    suspend inline fun <reified T: GenericEvent> wait(noinline predicate: (T) -> Boolean): T {
         return wait(T::class.java, predicate)
     }
 
-    class AwaitingPoint<in T : Event>(val predicate: (T) -> Boolean, val cont: Continuation<T>)
+    class AwaitingPoint<in T: GenericEvent>(val predicate: (T) -> Boolean, val cont: Continuation<T>)
 }

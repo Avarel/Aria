@@ -79,11 +79,10 @@ class QueueCommand : Command<MessageContext> {
         val queue = controller.scheduler.queue
 
         val track = when {
-            context.args.nextIs("first") -> controller.queue.removeFirst()
-            context.args.nextIs("last") -> controller.queue.removeLast()
+            context.args.nextIs("first") -> controller.scheduler.queue.removeFirst()
+            context.args.nextIs("last") -> controller.scheduler.queue.removeLast()
             context.args.nextIs("all") -> return clear(context, controller)
             else -> {
-                //TODO HANDLE THIS
                 val arg = context.args.string("index|start..end", consumeRemaining = true)
 
                 val matcher = pattern.matcher(arg)

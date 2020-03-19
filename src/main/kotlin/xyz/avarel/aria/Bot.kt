@@ -2,15 +2,17 @@ package xyz.avarel.aria
 
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder
-import net.dv8tion.jda.bot.sharding.ShardManager
-import net.dv8tion.jda.core.entities.Game
-import net.dv8tion.jda.core.utils.SessionControllerAdapter
+import net.dv8tion.jda.api.entities.Activity
+import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
+import net.dv8tion.jda.api.sharding.ShardManager
+import net.dv8tion.jda.api.utils.MemberCachePolicy
+import net.dv8tion.jda.api.utils.SessionControllerAdapter
+import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.commands.*
 import xyz.avarel.aria.listener.EventAwaiter
+import xyz.avarel.aria.listener.InitialListener
 import xyz.avarel.aria.listener.MessageContextProducer
 import xyz.avarel.aria.listener.VoiceListener
 import xyz.avarel.aria.music.MusicManager
@@ -19,7 +21,7 @@ import xyz.avarel.core.commands.impl.DefaultCommandRegistry
 import xyz.avarel.core.store.FileStore
 import xyz.avarel.core.store.Store
 import java.io.File
-import java.util.concurrent.Executors
+import java.util.*
 
 /**
  * Main bot instance.
@@ -27,7 +29,11 @@ import java.util.concurrent.Executors
  * @author Avarel
  */
 
-class Bot(token: String, val prefix: String) {
+class Bot(
+        token: String,
+        val name: String = "Aria",
+        val prefix: String = "+"
+) {
     companion object {
         val LOG = LoggerFactory.getLogger(Bot::class.java)!!
     }
@@ -65,9 +71,7 @@ class Bot(token: String, val prefix: String) {
 
         val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
 
-        shardManager = DefaultShardManagerBuilder().apply {
-            setToken(token)
-
+        shardManager = DefaultShardManagerBuilder.create(token, EnumSet.allOf(GatewayIntent::class.java)).apply {
             setShardsTotal(1)
             setShards(0, 0)
 
@@ -75,16 +79,18 @@ class Bot(token: String, val prefix: String) {
             setMaxReconnectDelay(32)
             setSessionController(SessionControllerAdapter())
 
+            setMemberCachePolicy(MemberCachePolicy.ONLINE)
+            setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS))
+
             // JDA-NAS does not have darwin naties.
             System.getProperty("os.name").let {
                 if (it.indexOf("darwin", ignoreCase = true) < 0 && it.indexOf("mac", ignoreCase = true) < 0) {
-                    setAudioSendFactory(NativeAudioSendFactory())
+                    setAudioSendFactory(NativeAudioSendFactory(800))
                 }
             }
 
-            setGameProvider { Game.playing("Hello there!") }
-
-            addEventListeners(ctxProducer, VoiceListener(this@Bot))
+            addEventListeners(ctxProducer, VoiceListener(this@Bot), InitialListener(this@Bot))
+            setActivity(Activity.of(Activity.ActivityType.CUSTOM_STATUS, "$prefix | I'm alive!"))
         }.build()
 
         LOG.info("Building bot.")

@@ -1,12 +1,13 @@
 package xyz.avarel.aria.listener
 
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.VoiceChannel
-import net.dv8tion.jda.core.events.Event
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceJoinEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceLeaveEvent
-import net.dv8tion.jda.core.events.guild.voice.GuildVoiceMoveEvent
-import net.dv8tion.jda.core.hooks.EventListener
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.VoiceChannel
+import net.dv8tion.jda.api.events.Event
+import net.dv8tion.jda.api.events.GenericEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceJoinEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceLeaveEvent
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceMoveEvent
+import net.dv8tion.jda.api.hooks.EventListener
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
 
@@ -15,7 +16,7 @@ class VoiceListener(private val bot: Bot) : EventListener {
         val LOG = LoggerFactory.getLogger(VoiceListener::class.java)!!
     }
 
-    override fun onEvent(event: Event) {
+    override fun onEvent(event: GenericEvent) {
         when (event) {
             is GuildVoiceJoinEvent -> onGuildVoiceJoin(event)
             is GuildVoiceMoveEvent -> onGuildVoiceMove(event)

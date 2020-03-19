@@ -1,10 +1,10 @@
 package xyz.avarel.core.commands
 
-import net.dv8tion.jda.core.EmbedBuilder
-import net.dv8tion.jda.core.entities.MessageChannel
-import net.dv8tion.jda.core.entities.MessageEmbed
-import net.dv8tion.jda.core.entities.TextChannel
-import net.dv8tion.jda.core.requests.restaction.MessageAction
+import net.dv8tion.jda.api.EmbedBuilder
+import net.dv8tion.jda.api.entities.MessageChannel
+import net.dv8tion.jda.api.entities.MessageEmbed
+import net.dv8tion.jda.api.entities.TextChannel
+import net.dv8tion.jda.api.requests.restaction.MessageAction
 import java.awt.Color
 import javax.annotation.CheckReturnValue
 

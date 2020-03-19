@@ -6,10 +6,10 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.audio.AudioSendHandler
-import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.entities.VoiceChannel
+import net.dv8tion.jda.api.Permission
+import net.dv8tion.jda.api.audio.AudioSendHandler
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
 import java.util.*
@@ -83,6 +83,7 @@ class MusicController(
         if (!destroyed) {
             LOG.debug("Destroying the music manager of $guild.")
 
+            leaveJob?.cancel()
             leaveJob = null
             close()
             scheduler.queue.clear()

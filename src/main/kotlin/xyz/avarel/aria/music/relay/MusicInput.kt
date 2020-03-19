@@ -2,18 +2,18 @@
 
 package xyz.avarel.aria.music.relay
 
-abstract class MusicInput
+sealed class MusicInput
 
 class JoinMusicChannelInput(val channelId: Long): MusicInput()
-class LeaveMusicChannelInput: MusicInput()
 class MoveMusicChannelInput(val channelId: Long): MusicInput()
+object LeaveMusicChannelInput : MusicInput()
 class PlayMusicInput(val query: String): MusicInput()
 class ChangeVolumeInput(val volume: Int): MusicInput()
 class ChangeRepeatMusicInput(val repeatMode: Int): MusicInput()
 class PlaybackMusicInput(val pause: Boolean): MusicInput()
 class RemoveTrackInput(val index: Int): MusicInput()
 class RemoveTrackRangeInput(val low: Int, val high: Int): MusicInput()
-class ClearQueueInput: MusicInput()
+object ClearQueueInput : MusicInput()
 class SeekInput(val position: Long): MusicInput()
 
 abstract class AbstractMusicInputListener {

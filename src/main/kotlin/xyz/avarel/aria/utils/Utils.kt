@@ -52,7 +52,6 @@ inline fun <T> tryOrNull(block: () -> T): T? {
 
 val AudioTrack.thumbnail: String?
     get() {
-
         return when (this) {
             is YoutubeAudioTrack -> "https://img.youtube.com/vi/$identifier/0.jpg"
             else -> null

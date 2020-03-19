@@ -12,7 +12,7 @@ class JoinCommand : Command<MessageContext> {
     }
 
     override suspend operator fun invoke(context: MessageContext) {
-        val vc = context.member.voiceState.channel
+        val vc = context.member?.voiceState?.channel
         if (vc == null) {
             context.channel.sendEmbed("No current voice channel.") {
                 desc { "This command requires you to be connected to a voice channel." }

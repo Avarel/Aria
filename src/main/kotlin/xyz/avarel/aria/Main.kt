@@ -10,8 +10,9 @@ fun main() {
 
     val token = properties.getProperty("token") ?: throw IllegalStateException("Token was not provided")
     val prefix = properties.getProperty("prefix") ?: "+"
+    val name = properties.getProperty("name") ?: "Aria"
 
-    Bot(token, prefix)
+    Bot(token, name, prefix)
 }
 
 

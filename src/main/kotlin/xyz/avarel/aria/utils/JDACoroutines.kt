@@ -1,6 +1,6 @@
 package xyz.avarel.aria.utils
 
-import net.dv8tion.jda.core.requests.RestAction
+import net.dv8tion.jda.api.requests.RestAction
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine

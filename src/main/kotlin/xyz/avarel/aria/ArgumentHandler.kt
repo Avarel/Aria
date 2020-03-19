@@ -80,8 +80,8 @@ class ArgumentHandler(private val list: List<String>) {
     ): T {
         val typeName = "$name: $valueNames"
         val string = string(typeName)
-        return try {
-            enumValueOf(string.toUpperCase())
+        try {
+            return enumValueOf(string.toUpperCase())
         } catch (e: IllegalArgumentException) {
             throw ArgumentError.Illegal(index--, typeName, string)
         }

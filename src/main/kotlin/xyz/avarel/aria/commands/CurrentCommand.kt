@@ -6,10 +6,11 @@ import xyz.avarel.core.commands.*
 import java.time.Duration
 
 class CurrentCommand : Command<MessageContext> {
-    override val aliases = arrayOf("current", "nowplaying", "np")
+    override val aliases = arrayOf("current", "nowplaying", "np", "n")
 
     override val info = info("Now Playing Command") {
         desc { "Show currently playing music track." }
+
     }
 
     override suspend operator fun invoke(context: MessageContext) {
@@ -42,7 +43,7 @@ class CurrentCommand : Command<MessageContext> {
             field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }
 
             field("Requester", true) { track.trackContext.requester.asMention }
-            field("Requested Channel", true) { track.trackContext.channel.asMention }
+            field("Requested Channel", true) { track.trackContext.requestChannel.asMention }
 
             image { track.thumbnail }
         }.queue()

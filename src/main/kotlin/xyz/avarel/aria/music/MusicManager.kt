@@ -42,7 +42,7 @@ class MusicManager(private val bot: Bot) {
                 RequestConfig.copy(config).setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
             }
         })
-        it.registerSourceManager(SoundCloudAudioSourceManager())
+        it.registerSourceManager(SoundCloudAudioSourceManager.createDefault())
         it.registerSourceManager(VimeoAudioSourceManager())
         it.registerSourceManager(BandcampAudioSourceManager())
         it.registerSourceManager(VimeoAudioSourceManager())

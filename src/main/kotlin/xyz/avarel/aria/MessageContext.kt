@@ -1,6 +1,6 @@
 package xyz.avarel.aria
 
-import net.dv8tion.jda.core.entities.Message
+import net.dv8tion.jda.api.entities.Message
 import xyz.avarel.core.commands.Context
 
 /**
