@@ -51,7 +51,7 @@ class QueueCommand : Command<MessageContext> {
 
             field("Size", true) { controller.scheduler.queue.size.toString() }
             field("Duration", true) {
-                val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
+                val duration = controller.scheduler.duration
                 Duration.ofMillis(duration).formatDuration()
             }
             field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }

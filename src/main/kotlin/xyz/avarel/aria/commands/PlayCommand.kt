@@ -5,6 +5,7 @@ import xyz.avarel.aria.music.TrackContext
 import xyz.avarel.aria.utils.*
 import xyz.avarel.core.commands.*
 import java.time.Duration
+import xyz.avarel.aria.music.MusicController.ConnectResult
 
 class PlayCommand : Command<MessageContext> {
     override val aliases = arrayOf("play", "p")
@@ -22,8 +23,36 @@ class PlayCommand : Command<MessageContext> {
     }
 
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
-                ?: return requireMusicControllerMessage(context)
+        val controller = context.bot.musicManager.getExisting(context.guild.idLong) ?: kotlin.run {
+            val vc = context.member?.voiceState?.channel
+            if (vc == null) {
+                context.channel.sendEmbed("No current voice channel.") {
+                    desc { "This command requires you to be connected to a voice channel." }
+                }.queue()
+                return
+            }
+
+            val controller = context.bot.musicManager.createAndPut(context.guild.idLong)
+
+            context.channel.sendEmbed {
+                when (controller.connect(vc)) {
+                    ConnectResult.SUCCESS -> {
+                        title { "Joined Voice Channel" }
+                        desc { "The bot has joined your voice channel `${vc.name}`." }
+                    }
+                    ConnectResult.USER_LIMIT -> {
+                        title { "Voice channel is full." }
+                        desc { "The voice channel `${vc.name}` is completely full." }
+                    }
+                    ConnectResult.NO_PERMISSION -> {
+                        title { "No permission." }
+                        desc { "The bot does not have permission to join `${vc.name}`." }
+                    }
+                }
+            }.queue()
+
+            controller
+        }
 
         val query = context.args.string("music name or URL", consumeRemaining = true)
 

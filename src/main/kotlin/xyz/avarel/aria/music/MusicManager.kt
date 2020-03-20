@@ -59,15 +59,25 @@ class MusicManager(private val bot: Bot) {
      *         If the guild id doesn't exist in JDA.
      */
     fun getOrCreate(guildID: Long): MusicController {
+        return registry.getOrPut(guildID) { create(guildID) }
+    }
+
+    fun createAndPut(guildID: Long): MusicController {
+        if (guildID in registry) {
+            throw IllegalStateException("Manager for $guildID already exists.")
+        }
+        val controller = create(guildID)
+        registry[guildID] = controller
+        return controller
+    }
+
+    fun create(guildID: Long): MusicController {
         val guild = bot.shardManager.getGuildById(guildID)
         if (guild == null) {
             destroy(guildID)
             throw IllegalStateException("Guild $guildID doesn't exist.")
         }
-
-        return registry.getOrPut(guildID) {
-            MusicController(bot, this, playerFactory.createPlayer(), guild)
-        }
+        return MusicController(bot, this, playerFactory.createPlayer(), guild)
     }
 
     /**

@@ -112,6 +112,7 @@ class ArgumentHandler(private val list: List<String>) {
     }
 
     fun nextIs(vararg strings: String): Boolean {
+        if (!hasNext()) return false
         val typeName = strings.joinToString(", ")
         val string = string(typeName)
         return strings.any { it == string }.also { if (!it) index-- }

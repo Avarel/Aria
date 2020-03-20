@@ -10,10 +10,10 @@ class DefaultCommandRegistry<C: Command<*>> : CommandRegistry<C> {
 
     override fun register(cmd: C) {
         cmd.aliases.forEach {
-            if (map[it] != null) {
+            if (map[it.toLowerCase()] != null) {
                 throw IllegalStateException("Duplicate command for alias $it.")
             }
-            map[it] = cmd
+            map[it.toLowerCase()] = cmd
         }
     }
 

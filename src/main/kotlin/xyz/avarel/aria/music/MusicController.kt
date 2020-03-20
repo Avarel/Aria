@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
+import kotlin.time.Duration
 
 /**
  * Handles music playback for a specific guild.
@@ -100,7 +101,7 @@ class MusicController(
             if (leaveJob == null) {
                 LOG.debug("Activate auto-destroy music controller for $guild.")
                 leaveJob = GlobalScope.launch {
-                    delay(30)
+                    delay(30 * 1000)
                     destroy()
                 }
             }

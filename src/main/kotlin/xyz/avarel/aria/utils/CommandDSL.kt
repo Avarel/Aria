@@ -2,6 +2,7 @@ package xyz.avarel.aria.utils
 
 class CommandDSL(val arguments: List<String>) {
     var matched = false
+    val possibleArguments: MutableList<PossibleArgument> = mutableListOf()
 
     inline fun string(type: String = "(string)", description: String? = null, block: CommandDSL.(String) -> Unit) {
         argParse(type, description, block) { it.firstOrNull() }
@@ -15,7 +16,7 @@ class CommandDSL(val arguments: List<String>) {
         if (matched) {
             return
         }
-        val value = extract(arguments) ?: return addError(type, description)
+        val value = extract(arguments) ?: return addPossibleArgument(type, description)
         matched = true
 
         val dsl = CommandDSL(arguments.subList(1, arguments.size))
@@ -26,14 +27,16 @@ class CommandDSL(val arguments: List<String>) {
         }
     }
 
-    fun addError(type: String, description: String?) {
-
+    fun addPossibleArgument(type: String, description: String?) {
+        possibleArguments.add(PossibleArgument(type, description))
     }
 
     fun error() {
-
+        println("missing $possibleArguments")
     }
 }
+
+data class PossibleArgument(val type: String, val description: String?)
 
 inline fun dsl(arguments: List<String>, block: CommandDSL.() -> Unit) {
     val dsl = CommandDSL(arguments)

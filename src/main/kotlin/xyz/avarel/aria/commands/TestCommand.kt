@@ -17,11 +17,11 @@ class TestCommand : Command<MessageContext> {
 
     override suspend operator fun invoke(context: MessageContext) {
         dsl(context.arguments) {
-            string {
-
-            }
             integer {
-
+                println("int path")
+            }
+            string {
+                println("string path")
             }
         }
 //        argParse(context) {

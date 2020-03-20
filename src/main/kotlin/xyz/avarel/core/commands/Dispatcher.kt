@@ -35,7 +35,7 @@ class Dispatcher<in CTX: Context, in C: Command<CTX>>(
 
     fun offer(ctx: CTX) {
         scope.launch {
-            registry[ctx.label]?.let { cmd ->
+            registry[ctx.label.toLowerCase()]?.let { cmd ->
                 try {
                     cmd(ctx)
                 } catch (e: Exception) {
