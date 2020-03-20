@@ -9,7 +9,7 @@ class DefaultCommandRegistry<C: Command<*>> : CommandRegistry<C> {
     override val entries: Collection<C> get() = map.values.distinct()
 
     override fun register(cmd: C) {
-        cmd.aliases.forEach {
+        cmd.info.aliases.forEach {
             if (map[it.toLowerCase()] != null) {
                 throw IllegalStateException("Duplicate command for alias $it.")
             }

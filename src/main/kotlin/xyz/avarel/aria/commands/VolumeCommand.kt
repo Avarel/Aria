@@ -1,53 +1,44 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.dsl
+import xyz.avarel.aria.utils.musicController
 import xyz.avarel.aria.utils.progressBarTo
-import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.core.commands.Command
-import xyz.avarel.core.commands.descBuilder
-import xyz.avarel.core.commands.info
-import xyz.avarel.core.commands.sendEmbed
+import xyz.avarel.core.commands.*
 
+@CommandInfo(
+        aliases = ["volume", "v", "vol"],
+        description = "Set the volume of the music player."
+)
 class VolumeCommand : Command<MessageContext> {
-    override val aliases = arrayOf("volume", "v", "vol")
-
-    override val info = info("Volume Command") {
-        desc { "Set the volume of the music player." }
-        usage {
-            optional {
-                range(0, 150)
-            }
-        }
-    }
-
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
-                ?: return requireMusicControllerMessage(context)
+        dsl(context) {
+            musicController { controller ->
+                val original = controller.player.volume
 
-        val original = controller.player.volume
-
-        if (context.args.hasNext()) {
-            val volume = context.args.numberRange(0, 150)
-            controller.player.volume = volume
-            context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
-        }
-
-        context.channel.sendEmbed("Volume") {
-            descBuilder {
-                append("\uD83D\uDD0A ")
-
-                progressBarTo(this, 30, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
-
-                if (original != controller.player.volume) {
-                    append(" `")
-                    append(original)
-                    append("%` →")
+                intInRange(0, 150) { volume ->
+                    controller.player.volume = volume
+                    context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
                 }
 
-                append(" `")
-                append(controller.player.volume)
-                append("%`")
+                context.channel.sendEmbed("Volume") {
+                    descBuilder {
+                        append("\uD83D\uDD0A ")
+
+                        progressBarTo(this, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+
+                        if (original != controller.player.volume) {
+                            append(" `")
+                            append(original)
+                            append("%` →")
+                        }
+
+                        append(" `")
+                        append(controller.player.volume)
+                        append("%`")
+                    }
+                }.queue()
             }
-        }.queue()
+        }
     }
 }

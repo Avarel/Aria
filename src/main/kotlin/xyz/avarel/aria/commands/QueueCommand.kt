@@ -7,25 +7,11 @@ import xyz.avarel.core.commands.*
 import java.time.Duration
 import java.util.regex.Pattern
 
+@CommandInfo(
+        aliases = ["queue", "q"],
+        description = "Show the music queue."
+)
 class QueueCommand : Command<MessageContext> {
-    override val aliases = arrayOf("queue", "q")
-
-    override val info = info("Queue Command") {
-        desc { "Show the music queue." }
-        usage {
-            optional { number() }
-        }
-        usage {
-            label("remove")
-            options {
-                number()
-                label("start..end")
-                label("first")
-                label("last")
-            }
-        }
-    }
-
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

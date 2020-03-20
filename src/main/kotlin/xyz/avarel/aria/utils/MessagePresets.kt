@@ -1,8 +1,30 @@
 package xyz.avarel.aria.utils
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.music.MusicController
 import xyz.avarel.core.commands.desc
 import xyz.avarel.core.commands.sendEmbed
+
+inline fun CommandDSL.musicController(block: CommandDSL.(controller: MusicController) -> Unit) {
+    val controller = ctx.bot.musicManager.getExisting(ctx.guild.idLong)
+    matched = true
+    if (controller == null) {
+        requireMusicControllerMessage(ctx)
+    } else {
+        CommandDSL(ctx, index).successOrYell { block(controller) }
+    }
+}
+
+inline fun CommandDSL.playingTrack(controller: MusicController, block: CommandDSL.(track: AudioTrack) -> Unit) {
+    val track = controller.player.playingTrack
+    matched = true
+    if (track == null) {
+        requirePlayingTrackMessage(ctx)
+    } else {
+        CommandDSL(ctx, index).successOrYell { block(track) }
+    }
+}
 
 fun requireMusicControllerMessage(context: MessageContext) {
     context.channel.sendEmbed("No Active Music Channel") {

@@ -7,12 +7,7 @@ package xyz.avarel.core.commands
  *        Context type.
  */
 interface Command<in T> {
-    /**
-     * Valid names that can be used to invoke the command.
-     */
-    val aliases: Array<String>
-
-    val info: CommandInfo
+    val info: CommandInfo get() = javaClass.getAnnotation(CommandInfo::class.java)
 
     /**
      * The implementation of what happens when the command

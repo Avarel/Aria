@@ -3,13 +3,11 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.*
 
+@CommandInfo(
+        aliases = ["help", "info", "i", "h"],
+        description = "Get general information about the bot."
+)
 class InfoCommand : Command<MessageContext> {
-    override val aliases = arrayOf("help", "info", "i", "h")
-
-    override val info = info("Information Command") {
-        desc { "Get general information about the bot." }
-    }
-
     override suspend fun invoke(context: MessageContext) {
         context.channel.sendEmbed("Information") {
             desc { "The bot's prefix is `${context.bot.prefix}`." }
@@ -18,9 +16,9 @@ class InfoCommand : Command<MessageContext> {
                 for (cmd in context.bot.commandRegistry.entries) {
                     if (!cmd.info.visible) continue
                     append('`')
-                    append(cmd.aliases.first())
+                    append(cmd.info.aliases.first())
                     append("` – ")
-                    append(cmd.info.description ?: "No description.")
+                    append(cmd.info.description)
                     appendln()
                 }
             }

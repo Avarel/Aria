@@ -3,18 +3,13 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.requireMusicControllerMessage
 import xyz.avarel.aria.utils.requirePlayingTrackMessage
-import xyz.avarel.core.commands.Command
-import xyz.avarel.core.commands.desc
-import xyz.avarel.core.commands.info
-import xyz.avarel.core.commands.sendEmbed
+import xyz.avarel.core.commands.*
 
+@CommandInfo(
+        aliases = ["pause"],
+        description = "Pause the music player."
+)
 class PauseCommand : Command<MessageContext> {
-    override val aliases = arrayOf("pause")
-
-    override val info = info("Pause Command") {
-        desc { "Pause the music player." }
-    }
-
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong)
                 ?: return requireMusicControllerMessage(context)

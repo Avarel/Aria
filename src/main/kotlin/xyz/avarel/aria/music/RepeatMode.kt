@@ -6,19 +6,13 @@ package xyz.avarel.aria.music
  * @author Avarel
  */
 enum class RepeatMode {
-    /**
-     * No repeat.
-     */
+    /** No repeat. */
     NONE,
 
-    /**
-     * Repeat the queue.
-     */
+    /** Repeat the queue. */
     QUEUE,
 
-    /**
-     * Repeat the current song.
-     */
+    /** Repeat the current song. */
     SONG;
 
     override fun toString() = name.toLowerCase().capitalize()

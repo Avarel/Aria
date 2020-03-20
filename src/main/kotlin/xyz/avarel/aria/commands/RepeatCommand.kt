@@ -2,39 +2,33 @@ package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.music.RepeatMode
+import xyz.avarel.aria.utils.dsl
+import xyz.avarel.aria.utils.musicController
+import xyz.avarel.aria.utils.playingTrack
 import xyz.avarel.aria.utils.requireMusicControllerMessage
-import xyz.avarel.core.commands.Command
-import xyz.avarel.core.commands.desc
-import xyz.avarel.core.commands.info
-import xyz.avarel.core.commands.sendEmbed
+import xyz.avarel.core.commands.*
 
+@CommandInfo(
+        aliases = ["repeat", "r"],
+        description = "Change the repeat mode of the music player."
+)
 class RepeatCommand : Command<MessageContext> {
-    override val aliases = arrayOf("repeat")
-
-    override val info = info("Repeat Command") {
-        desc { "Change the repeat mode of the music player." }
-        usage {
-            required {
-                options<RepeatMode>()
-            }
-        }
-    }
-
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong)
-                ?: return requireMusicControllerMessage(context)
-
-        val repeat = context.args.enum<RepeatMode>()
-        controller.scheduler.repeatMode = repeat
-
-        context.channel.sendEmbed("Repeat") {
-            desc {
-                when (controller.scheduler.repeatMode) {
-                    RepeatMode.NONE -> "The bot will not repeat songs."
-                    RepeatMode.QUEUE -> "The bot will repeat the playlist."
-                    RepeatMode.SONG -> "The bot will repeat the current song."
+        dsl(context) {
+            musicController { controller ->
+                enum<RepeatMode>("Repeat mode.") { mode ->
+                    controller.scheduler.repeatMode = mode
+                    context.channel.sendEmbed("Repeat") {
+                        desc {
+                            when (controller.scheduler.repeatMode) {
+                                RepeatMode.NONE -> "The bot will not repeat songs."
+                                RepeatMode.QUEUE -> "The bot will repeat the current queue."
+                                RepeatMode.SONG -> "The bot will repeat the current song."
+                            }
+                        }
+                    }.queue()
                 }
             }
-        }.queue()
+        }
     }
 }

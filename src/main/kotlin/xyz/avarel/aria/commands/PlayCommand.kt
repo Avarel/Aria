@@ -7,21 +7,11 @@ import xyz.avarel.core.commands.*
 import java.time.Duration
 import xyz.avarel.aria.music.MusicController.ConnectResult
 
+@CommandInfo(
+        aliases = ["play", "p"],
+        description = "Play some music."
+)
 class PlayCommand : Command<MessageContext> {
-    override val aliases = arrayOf("play", "p")
-
-    override val info = info("Play Music Command") {
-        desc { "Play some music." }
-        usage {
-            required {
-                options {
-                    url()
-                    text()
-                }
-            }
-        }
-    }
-
     override suspend operator fun invoke(context: MessageContext) {
         val controller = context.bot.musicManager.getExisting(context.guild.idLong) ?: kotlin.run {
             val vc = context.member?.voiceState?.channel
