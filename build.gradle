@@ -25,6 +25,10 @@ mainClassName = 'xyz.avarel.aria.MainKt'
 sourceCompatibility = 9
 targetCompatibility = 9
 
+wrapper {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
 repositories {
     mavenCentral()
     mavenLocal()

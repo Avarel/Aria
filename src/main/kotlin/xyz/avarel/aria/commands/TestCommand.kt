@@ -1,6 +1,7 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
+import xyz.avarel.aria.utils.dsl
 import xyz.avarel.core.commands.Command
 import xyz.avarel.core.commands.info
 
@@ -15,6 +16,14 @@ class TestCommand : Command<MessageContext> {
     private var count = 0
 
     override suspend operator fun invoke(context: MessageContext) {
+        dsl(context.arguments) {
+            string {
+
+            }
+            integer {
+
+            }
+        }
 //        argParse(context) {
 //            matchInt(description = "A number for fun.") {
 //                matchLabel("love", "do you want extra love?") {
