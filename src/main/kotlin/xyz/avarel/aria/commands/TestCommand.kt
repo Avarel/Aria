@@ -14,7 +14,7 @@ class TestCommand : Command<MessageContext> {
     private var count = 0
 
     override suspend operator fun invoke(context: MessageContext) {
-        dsl(context) {
+        context.dsl {
             integer {
                 context.channel.sendMessage("Got an integer $it").queue()
             }

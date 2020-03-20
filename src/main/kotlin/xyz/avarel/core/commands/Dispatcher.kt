@@ -26,12 +26,9 @@ import org.slf4j.LoggerFactory
 @ObsoleteCoroutinesApi
 class Dispatcher<in CTX: Context, in C: Command<CTX>>(
         private val scope: CoroutineScope,
-        private val registry: CommandRegistry<C>,
-        private val errorHandler: ((CTX, Exception) -> Unit)? = null
+        private val registry: CommandRegistry<C>
 ) {
-    companion object {
-        val LOG = LoggerFactory.getLogger(Dispatcher::class.java)!!
-    }
+    val LOG = LoggerFactory.getLogger(Dispatcher::class.java)!!
 
     fun offer(ctx: CTX) {
         scope.launch {
@@ -39,7 +36,7 @@ class Dispatcher<in CTX: Context, in C: Command<CTX>>(
                 try {
                     cmd(ctx)
                 } catch (e: Exception) {
-                    errorHandler?.invoke(ctx, e)
+                    LOG.error("Encountered exception", e)
                 }
             }
         }

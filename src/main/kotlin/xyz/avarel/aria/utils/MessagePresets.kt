@@ -6,7 +6,7 @@ import xyz.avarel.aria.music.MusicController
 import xyz.avarel.core.commands.desc
 import xyz.avarel.core.commands.sendEmbed
 
-inline fun CommandDSL.musicController(block: CommandDSL.(controller: MusicController) -> Unit) {
+inline fun CommandDSL.requireMusic(block: CommandDSL.(controller: MusicController) -> Unit) {
     val controller = ctx.bot.musicManager.getExisting(ctx.guild.idLong)
     matched = true
     if (controller == null) {
@@ -16,7 +16,7 @@ inline fun CommandDSL.musicController(block: CommandDSL.(controller: MusicContro
     }
 }
 
-inline fun CommandDSL.playingTrack(controller: MusicController, block: CommandDSL.(track: AudioTrack) -> Unit) {
+inline fun CommandDSL.requireTrack(controller: MusicController, block: CommandDSL.(track: AudioTrack) -> Unit) {
     val track = controller.player.playingTrack
     matched = true
     if (track == null) {
@@ -27,32 +27,14 @@ inline fun CommandDSL.playingTrack(controller: MusicController, block: CommandDS
 }
 
 fun requireMusicControllerMessage(context: MessageContext) {
-    context.channel.sendEmbed("No Active Music Channel") {
-        desc { "The bot is not currently connected to any voice channel." }
+    context.channel.sendEmbed("Not Connected") {
+        desc { "The bot is not connected to any voice channel. Try `+join` or `+play`." }
     }.queue()
 }
 
 fun requirePlayingTrackMessage(context: MessageContext) {
-    context.channel.sendEmbed("No Active Music") {
-        desc { "The bot is not currently playing any music." }
-    }.queue()
-}
-
-fun insufficientArgumentsMessage(context: MessageContext, type: String) {
-    context.channel.sendEmbed("Insufficient Arguments") {
-        desc { "Please include $type in the usage." }
-    }.queue()
-}
-
-fun errorMessage(context: MessageContext, reason: String) {
-    context.channel.sendEmbed("Error") {
-        desc { reason }
-    }.queue()
-}
-
-fun invalidArgumentsMessage(context: MessageContext, type: String) {
-    context.channel.sendEmbed("Invalid ArgumentInfo") {
-        desc { "Invalid $type." }
+    context.channel.sendEmbed("Not Playing Music") {
+        desc { "The bot is not playing any music." }
     }.queue()
 }
 

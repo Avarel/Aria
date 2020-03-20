@@ -12,9 +12,9 @@ import java.time.Duration
 )
 class SeekCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
-        dsl(context) {
-            musicController { controller ->
-                playingTrack(controller) { track ->
+        context.dsl {
+            requireMusic { controller ->
+                requireTrack(controller) { track ->
                     val current = Duration.ofMillis(track.position)
                     match("start", "beginning", desc = "Seek to the the start of the track.") {
                         setDuration(context, track, current, Duration.ofSeconds(0))

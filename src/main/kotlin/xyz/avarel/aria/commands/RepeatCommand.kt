@@ -3,9 +3,7 @@ package xyz.avarel.aria.commands
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.music.RepeatMode
 import xyz.avarel.aria.utils.dsl
-import xyz.avarel.aria.utils.musicController
-import xyz.avarel.aria.utils.playingTrack
-import xyz.avarel.aria.utils.requireMusicControllerMessage
+import xyz.avarel.aria.utils.requireMusic
 import xyz.avarel.core.commands.*
 
 @CommandInfo(
@@ -14,8 +12,8 @@ import xyz.avarel.core.commands.*
 )
 class RepeatCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
-        dsl(context) {
-            musicController { controller ->
+        context.dsl {
+            requireMusic { controller ->
                 enum<RepeatMode>("Repeat mode.") { mode ->
                     controller.scheduler.repeatMode = mode
                     context.channel.sendEmbed("Repeat") {

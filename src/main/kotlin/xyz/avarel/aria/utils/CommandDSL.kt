@@ -5,70 +5,73 @@ import xyz.avarel.core.commands.*
 import java.time.Duration
 
 class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
-    inline val arguments get() = ctx.arguments
+    private inline val arguments get() = ctx.arguments
     var matched = false
     private val possibleArguments: MutableList<PossibleArgument> = mutableListOf()
 
+    fun hasNext() = index < arguments.size
 
-    fun stringOrNull(): String? {
-        return arguments.getOrNull(index)
+    fun stringOrNull(consume: Boolean = false): String? {
+        return when {
+            !hasNext() -> null
+            consume -> arguments.subList(index, arguments.size).joinToString(" ")
+            else -> arguments[index]
+        }
     }
 
-    inline fun string(type: String = "(string)", desc: String? = null, block: CommandDSL.(String) -> Unit) {
-        argParse(type, desc, block) { stringOrNull() }
+    inline fun string(type: String = "(string)", desc: String? = null, consume: Boolean = false, block: CommandDSL.(String) -> Unit) {
+        argParse(type, desc, block, consume) { it }
     }
 
     inline fun match(vararg strings: String, desc: String? = null, block: CommandDSL.(String) -> Unit) {
-        argParse(strings.joinToString(" | ", "(", ")"), desc, block) {
-            val s = stringOrNull()
+        argParse(strings.joinToString(" | ", "(", ")"), desc, block) { s ->
             if (strings.any { it == s }) s else null
         }
     }
 
     inline fun integer(type: String = "(integer)", desc: String? = null, block: CommandDSL.(Int) -> Unit) {
-        argParse(type, desc, block) { stringOrNull()?.toIntOrNull() }
+        argParse(type, desc, block, extract = String::toIntOrNull)
     }
 
     inline fun intInRange(low: Int, high: Int, desc: String? = null, block: CommandDSL.(Int) -> Unit) {
-        argParse("($low..$high)", desc, block) { stringOrNull()?.toIntOrNull() }
+        argParse("($low..$high)", desc, block) {
+            it.toIntOrNull().takeIf { i -> i in low..high }
+        }
     }
 
     inline fun time(type: String = "([[hh:]mm:]ss)", desc: String? = null, block: CommandDSL.(Duration) -> Unit) {
-        argParse(type, desc, block) { stringOrNull()?.toDurationOrNull() }
+        argParse(type, desc, block, extract = String::toTimeOrNull)
     }
 
     inline fun <reified T: Enum<T>> enum(desc: String? = null, block: CommandDSL.(T) -> Unit) {
         val type = enumValues<T>().joinToString(", ", "(", ")") { it.name.toLowerCase() }
         argParse(type, desc, block) {
             try {
-                stringOrNull()?.let { enumValueOf<T>(it.toUpperCase()) }
+                enumValueOf<T>(it.toUpperCase())
             } catch (e: IllegalArgumentException) {
                 null
             }
         }
     }
 
-    inline fun default(block: CommandDSL.() -> Unit) {
-        if (matched) {
-            return
-        }
-
-        CommandDSL(ctx, index + 1).successOrYell(block)
-    }
-
-    inline fun ifMatched(block: CommandDSL.() -> Unit) {
-        if (!matched) return
-        block()
-    }
-
-    inline fun <T> argParse(type: String, description: String?, block: CommandDSL.(T) -> Unit, extract: () -> T?) {
-        if (matched) {
-            return
-        }
-        val value = extract() ?: return addPossibleArgument(type, description)
+    inline fun nothing(desc: String? = null, block: CommandDSL.() -> Unit) {
+        if (matched) return
+        if (hasNext()) return addPossibleArgument("<no argument>", desc)
+        CommandDSL(ctx, index).successOrYell(block)
         matched = true
+    }
 
+    inline fun more(block: CommandDSL.() -> Unit) {
+        if (matched || !hasNext()) return
+        CommandDSL(ctx, index).successOrYell(block)
+        matched = true
+    }
+
+    inline fun <T> argParse(type: String, description: String?, block: CommandDSL.(T) -> Unit, consume: Boolean = false, extract: (String) -> T?) {
+        if (matched) return
+        val value = stringOrNull(consume)?.let(extract) ?: return addPossibleArgument(type, description)
         CommandDSL(ctx, index + 1).successOrYell { block(value) }
+        matched = true
     }
 
     fun addPossibleArgument(type: String, description: String?) {
@@ -137,15 +140,15 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
             }
         }.queue()
     }
+
+    inline fun successOrYell(block: CommandDSL.() -> Unit) {
+        block()
+        if (!matched) printPossibleArguments()
+    }
 }
 
 data class PossibleArgument(val type: String, val description: String?)
 
-inline fun dsl(context: MessageContext, block: CommandDSL.() -> Unit) {
-    CommandDSL(context).successOrYell { block() }
-}
-
-inline fun CommandDSL.successOrYell(block: CommandDSL.() -> Unit) {
-    block()
-    if (!matched) printPossibleArguments()
+inline fun MessageContext.dsl(block: CommandDSL.() -> Unit) {
+    CommandDSL(this).successOrYell { block() }
 }

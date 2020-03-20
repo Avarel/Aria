@@ -27,10 +27,10 @@ fun Duration.formatDuration(): String {
     return "%02d:%02d:%02d".format(h, m % 60, s % 60)
 }
 
-private val durationPattern = Pattern.compile("(?:(?:(\\d+):)?(\\d{1,2}):)?(\\d{1,2})")
+private val timePattern = Pattern.compile("(?:(?:(\\d+):)?(\\d{1,2}):)?(\\d{1,2})")
 
-fun String.toDurationOrNull(): Duration? {
-    val matcher = durationPattern.matcher(this)
+fun String.toTimeOrNull(): Duration? {
+    val matcher = timePattern.matcher(this)
     if (!matcher.matches()) return null
     val h = matcher.group(1)?.toInt() ?: 0
     val m = matcher.group(2)?.toInt() ?: 0

@@ -10,9 +10,9 @@ import xyz.avarel.core.commands.*
 )
 class SkipCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
-        dsl(context) {
-            musicController { controller ->
-                playingTrack(controller) { track ->
+        context.dsl {
+            requireMusic { controller ->
+                requireTrack(controller) { track ->
                     controller.scheduler.nextTrack()
 
                     context.channel.sendEmbed("Skip") {

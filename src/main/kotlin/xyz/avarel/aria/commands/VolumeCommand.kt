@@ -2,36 +2,40 @@ package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.dsl
-import xyz.avarel.aria.utils.musicController
+import xyz.avarel.aria.utils.requireMusic
 import xyz.avarel.aria.utils.progressBarTo
 import xyz.avarel.core.commands.*
 
 @CommandInfo(
         aliases = ["volume", "v", "vol"],
         description = "Set the volume of the music player."
+
 )
 class VolumeCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
-        dsl(context) {
-            musicController { controller ->
-                val original = controller.player.volume
-
-                intInRange(0, 150) { volume ->
-                    controller.player.volume = volume
-                    context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
-                }
-
+        context.dsl {
+            requireMusic { controller ->
                 context.channel.sendEmbed("Volume") {
                     descBuilder {
                         append("\uD83D\uDD0A ")
 
-                        progressBarTo(this, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+                        intInRange(0, 150, "New volume.") { volume ->
+                            val original = controller.player.volume
+                            controller.player.volume = volume
+                            context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
 
-                        if (original != controller.player.volume) {
+                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+
                             append(" `")
                             append(original)
                             append("%` →")
                         }
+
+                        nothing("View the current volume.") {
+                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+                        }
+
+                        more { return@requireMusic }
 
                         append(" `")
                         append(controller.player.volume)
@@ -41,4 +45,6 @@ class VolumeCommand : Command<MessageContext> {
             }
         }
     }
+
+
 }

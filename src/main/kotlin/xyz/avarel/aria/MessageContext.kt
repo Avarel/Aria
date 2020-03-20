@@ -13,6 +13,4 @@ data class MessageContext internal constructor(
         private val message: Message,
         override val label: String,
         override val arguments: List<String>
-) : Context, Message by message {
-    val args: ArgumentHandler = ArgumentHandler(arguments)
-}
+) : Context, Message by message

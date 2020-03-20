@@ -13,68 +13,41 @@ import xyz.avarel.aria.music.MusicController.ConnectResult
 )
 class PlayCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
-        val controller = context.bot.musicManager.getExisting(context.guild.idLong) ?: kotlin.run {
-            val vc = context.member?.voiceState?.channel
-            if (vc == null) {
-                context.channel.sendEmbed("No current voice channel.") {
-                    desc { "This command requires you to be connected to a voice channel." }
-                }.queue()
-                return
-            }
+        context.dsl {
+            string("(query | url)", "A search query or a music http URL.", true) { query ->
+                val controller = join(context, false) ?: return
 
-            val controller = context.bot.musicManager.createAndPut(context.guild.idLong)
+                val list = context.bot.musicManager.search(if ("https://" in query) query else "ytsearch:$query", 1)
 
-            context.channel.sendEmbed {
-                when (controller.connect(vc)) {
-                    ConnectResult.SUCCESS -> {
-                        title { "Joined Voice Channel" }
-                        desc { "The bot has joined your voice channel `${vc.name}`." }
-                    }
-                    ConnectResult.USER_LIMIT -> {
-                        title { "Voice channel is full." }
-                        desc { "The voice channel `${vc.name}` is completely full." }
-                    }
-                    ConnectResult.NO_PERMISSION -> {
-                        title { "No permission." }
-                        desc { "The bot does not have permission to join `${vc.name}`." }
-                    }
+                if (list.isEmpty()) {
+                    context.channel.sendEmbed("No Results") {
+                        desc { "YouTube returned no results for `$query`." }
+                    }.queue()
+                    return
                 }
-            }.queue()
 
-            controller
-        }
+                val track = list[0]
 
-        val query = context.args.string("music name or URL", consumeRemaining = true)
+                track.userData = TrackContext(context.member!!, context.textChannel)
 
-        val list = context.bot.musicManager.search(if ("https://" in query) query else "ytsearch:$query", 1)
+                context.channel.sendEmbed(track.info.title, track.info.uri) {
+                    setAuthor(track.info.author)
 
-        if (list.isEmpty()) {
-            context.channel.sendEmbed("No Results") {
-                desc { "YouTube returned no results for `$query`." }
-            }.queue()
-            return
-        }
+                    field("Duration", true) { Duration.ofMillis(track.duration).formatDuration() }
+                    field("Time Until Play", true) {
+                        val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
+                        Duration.ofMillis(duration).formatDuration()
+                    }
 
-        val track = list[0]
+                    field("Requester", true) { track.trackContext.requester.asMention }
+                    field("Requested Channel", true) { track.trackContext.requestChannel.asMention }
 
-        track.userData = TrackContext(context.member!!, context.textChannel)
+                    image { track.thumbnail }
+                }.await()
 
-        context.channel.sendEmbed(track.info.title, track.info.uri) {
-            setAuthor(track.info.author)
-
-            field("Duration", true) { Duration.ofMillis(track.duration).formatDuration() }
-            field("Time Until Play", true) {
-                val duration = (controller.player.playingTrack?.remainingDuration ?: 0) - controller.scheduler.duration
-                Duration.ofMillis(duration).formatDuration()
+                controller.scheduler.offer(list[0])
+                controller.autoDestroy(false)
             }
-
-            field("Requester", true) { track.trackContext.requester.asMention }
-            field("Requested Channel", true) { track.trackContext.requestChannel.asMention }
-
-            image { track.thumbnail }
-        }.await()
-
-        controller.scheduler.offer(list[0])
-        controller.autoDestroy(false)
+        }
     }
 }

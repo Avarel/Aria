@@ -54,9 +54,11 @@ class Bot(
         register(LeaveCommand())
         register(PlayCommand())
         register(PauseCommand())
+        register(CurrentCommand())
         register(VolumeCommand())
         register(QueueCommand())
-        register(CurrentCommand())
+        register(ClearCommand())
+        register(RemoveCommand())
         register(RepeatCommand())
         register(SkipCommand())
         register(SeekCommand())
@@ -68,7 +70,7 @@ class Bot(
         LOG.info("${commandRegistry.entries.size} commands registered.")
 
         @Suppress("EXPERIMENTAL_API_USAGE")
-        val dispatcher = Dispatcher(GlobalScope, commandRegistry, ::handleMessageError)
+        val dispatcher = Dispatcher(GlobalScope, commandRegistry)
 
         val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
 
@@ -99,57 +101,5 @@ class Bot(
         LOG.info("Building bot.")
 
         musicManager = MusicManager(this)
-    }
-
-    private fun handleMessageError(ctx: MessageContext, e: Exception) {
-        if (e !is ArgumentError) return
-        ctx.channel.sendEmbed("Argument Error") {
-            fieldBuilder("Command Input") {
-                append("```\n")
-                append(ctx.label)
-                ctx.arguments.forEach {
-                    append(' ')
-                    append(it)
-                }
-                appendln()
-
-                val index = ctx.label.length + ctx.arguments.subList(0, e.position).sumBy { it.length + 1 } + 1
-                repeat(index) {
-                    append(' ')
-                }
-                when (e) {
-                    is ArgumentError.Illegal -> {
-                        val actual = ctx.arguments[e.position]
-                        when (actual.length) {
-                            0, 1 -> append("|")
-                            else -> {
-                                append('└')
-                                repeat(actual.length - 2) {
-                                    append('─')
-                                }
-                                append("┘")
-                            }
-                        }
-                    }
-                    is ArgumentError.Insufficient -> {
-                        append("└?┘")
-                    }
-                }
-                append("```")
-            }
-
-            field("Position", true) { (e.position + 1).toString() }
-            when (e) {
-                is ArgumentError.Illegal -> {
-                    desc { "⚠ One of the arguments for the command was invalid." }
-                    field("Expected", true) { e.type }
-                    field("Given", true) { e.actual }
-                }
-                is ArgumentError.Insufficient -> {
-                    desc { "⚠ You need more arguments for this command." }
-                    field("Expected", true) { e.type }
-                }
-            }
-        }.queue()
     }
 }
