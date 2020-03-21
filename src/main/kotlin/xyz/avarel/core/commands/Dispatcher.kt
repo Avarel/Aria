@@ -1,6 +1,7 @@
 package xyz.avarel.core.commands
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
@@ -28,7 +29,7 @@ class Dispatcher<in CTX: Context, in C: Command<CTX>>(
         private val scope: CoroutineScope,
         private val registry: CommandRegistry<C>
 ) {
-    val log = LoggerFactory.getLogger(Dispatcher::class.java)!!
+    private val log = LoggerFactory.getLogger(Dispatcher::class.java)!!
 
     fun offer(ctx: CTX) {
         scope.launch {

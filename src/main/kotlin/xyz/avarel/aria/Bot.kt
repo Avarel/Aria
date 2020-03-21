@@ -1,7 +1,8 @@
 package xyz.avarel.aria
 
 import com.sedmelluq.discord.lavaplayer.jdaudp.NativeAudioSendFactory
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder
@@ -23,6 +24,7 @@ import xyz.avarel.core.store.FileStore
 import xyz.avarel.core.store.Store
 import java.io.File
 import java.util.*
+import java.util.concurrent.ForkJoinPool
 
 /**
  * Main bot instance.
@@ -35,9 +37,7 @@ class Bot(
         val name: String = "Aria",
         val prefix: String = "+"
 ) {
-    companion object {
-        val LOG = LoggerFactory.getLogger(Bot::class.java)!!
-    }
+    private val log = LoggerFactory.getLogger(Bot::class.java)!!
 
     val shardManager: ShardManager
     val musicManager: MusicManager
@@ -67,10 +67,9 @@ class Bot(
     }
 
     init {
-        LOG.info("${commandRegistry.entries.size} commands registered.")
+        log.info("${commandRegistry.entries.size} commands registered.")
 
-        @Suppress("EXPERIMENTAL_API_USAGE")
-        val dispatcher = Dispatcher(GlobalScope, commandRegistry)
+        val dispatcher = Dispatcher(CoroutineScope(ForkJoinPool().asCoroutineDispatcher()), commandRegistry)
 
         val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
 
@@ -98,7 +97,7 @@ class Bot(
             setActivity(Activity.playing("${prefix}help | I'm alive!"))
         }.build()
 
-        LOG.info("Building bot.")
+        log.info("Building bot.")
 
         musicManager = MusicManager(this)
     }

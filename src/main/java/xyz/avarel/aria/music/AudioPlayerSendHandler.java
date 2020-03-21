@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 
 public class AudioPlayerSendHandler implements AudioSendHandler {
     private final AudioPlayer audioPlayer;
-    private MutableAudioFrame lastFrame;
+    private final MutableAudioFrame lastFrame;
 
     /**
      * @param audioPlayer Audio player to wrap.

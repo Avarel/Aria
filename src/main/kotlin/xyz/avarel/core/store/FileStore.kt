@@ -15,7 +15,7 @@ import kotlin.concurrent.thread
  * @author Avarel
  */
 class FileStore(private val file: File? = null): Store {
-    val log = LoggerFactory.getLogger(FileStore::class.java)!!
+    private val log = LoggerFactory.getLogger(FileStore::class.java)!!
 
     private val properties = Properties()
 

@@ -11,7 +11,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException
  * @author Avarel
  */
 class JedisStore(private val pool: JedisPool): Store {
-    val log = LoggerFactory.getLogger(JedisStore::class.java)!!
+    private val log = LoggerFactory.getLogger(JedisStore::class.java)!!
 
     fun connected(): Boolean {
         return try {
