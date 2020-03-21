@@ -11,9 +11,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException
  * @author Avarel
  */
 class JedisStore(private val pool: JedisPool): Store {
-    companion object {
-        val LOG = LoggerFactory.getLogger(JedisStore::class.java)!!
-    }
+    val log = LoggerFactory.getLogger(JedisStore::class.java)!!
 
     fun connected(): Boolean {
         return try {
@@ -29,27 +27,27 @@ class JedisStore(private val pool: JedisPool): Store {
     }
 
     override fun shutdown() {
-        FileStore.LOG.info("Jedis store connection shutting down.")
+        log.info("Jedis store connection shutting down.")
         pool.close()
     }
 
     inner class JedisStoreNode(key: String): AbstractStoreNode(key) {
         override fun delete() {
-            FileStore.LOG.debug("Deleting \"$key\".")
+            log.debug("Deleting \"$key\".")
             pool.resource.use { client ->
                 client.del(key)
             }
         }
 
         override fun get(): String? {
-            LOG.debug("Retrieving \"$key\".")
+            log.debug("Retrieving \"$key\".")
             return pool.resource.use { client ->
                 client[key]
             }
         }
 
         override fun set(value: String) {
-            LOG.debug("Setting \"$key\" to \"$value\".")
+            log.debug("Setting \"$key\" to \"$value\".")
             pool.resource.use { client ->
                 client[key] = value
             }

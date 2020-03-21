@@ -28,7 +28,7 @@ class Dispatcher<in CTX: Context, in C: Command<CTX>>(
         private val scope: CoroutineScope,
         private val registry: CommandRegistry<C>
 ) {
-    val LOG = LoggerFactory.getLogger(Dispatcher::class.java)!!
+    val log = LoggerFactory.getLogger(Dispatcher::class.java)!!
 
     fun offer(ctx: CTX) {
         scope.launch {
@@ -36,7 +36,7 @@ class Dispatcher<in CTX: Context, in C: Command<CTX>>(
                 try {
                     cmd(ctx)
                 } catch (e: Exception) {
-                    LOG.error("Encountered exception", e)
+                    log.error("Encountered exception", e)
                 }
             }
         }

@@ -43,14 +43,6 @@ val AudioTrack.remainingDuration: Long
         return this.duration - this.position
     }
 
-inline fun <T> tryOrNull(block: () -> T): T? {
-    return try {
-        block()
-    } catch (e: Exception) {
-        null
-    }
-}
-
 val AudioTrack.thumbnail: String?
     get() {
         return when (this) {

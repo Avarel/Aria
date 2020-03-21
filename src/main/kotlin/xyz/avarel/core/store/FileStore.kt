@@ -15,9 +15,7 @@ import kotlin.concurrent.thread
  * @author Avarel
  */
 class FileStore(private val file: File? = null): Store {
-    companion object {
-        val LOG = LoggerFactory.getLogger(FileStore::class.java)!!
-    }
+    val log = LoggerFactory.getLogger(FileStore::class.java)!!
 
     private val properties = Properties()
 
@@ -25,16 +23,15 @@ class FileStore(private val file: File? = null): Store {
         if (file != null) {
             if (!file.exists()) {
                 file.createNewFile()
-                LOG.info("Created ${file.absolutePath}.")
+                log.info("Created ${file.absolutePath}.")
             }
             file.inputStream().use { input ->
                 properties.load(input)
-                LOG.info("Loaded file store from ${file.absolutePath}.")
+                log.info("Loaded file store from ${file.absolutePath}.")
             }
-
         } else {
-            LOG.warn("File store initialized without a file.")
-            LOG.warn("All data will be lost when the program shuts down")
+            log.warn("File store initialized without a file.")
+            log.warn("All data will be lost when the program shuts down")
         }
         Runtime.getRuntime().addShutdownHook(thread(start = false, block = ::shutdown))
     }
@@ -44,31 +41,31 @@ class FileStore(private val file: File? = null): Store {
     }
 
     override fun shutdown() {
-        LOG.info("File store shutting down.")
+        log.info("File store shutting down.")
         if (file == null) {
-            LOG.warn("No file was provided, all data will be lost.")
+            log.warn("No file was provided, all data will be lost.")
             return
         }
 
         file.outputStream().use { out ->
             properties.store(out, "key value store")
-            LOG.info("Data have been saved to ${file.absolutePath}.")
+            log.info("Data have been saved to ${file.absolutePath}.")
         }
     }
 
     inner class FileStoreNode(key: String): AbstractStoreNode(key) {
         override fun delete() {
-            LOG.debug("Deleting \"$key\".")
+            log.debug("Deleting \"$key\".")
             properties.remove(key)
         }
 
         override fun get(): String? {
-            LOG.debug("Retrieving \"$key\".")
+            log.debug("Retrieving \"$key\".")
             return properties.getProperty("key")
         }
 
         override fun set(value: String) {
-            LOG.debug("Setting \"$key\" to \"$value\".")
+            log.debug("Setting \"$key\" to \"$value\".")
             properties.setProperty(key, value)
         }
     }

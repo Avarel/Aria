@@ -7,7 +7,9 @@ import java.time.Duration
 class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
     private inline val arguments get() = ctx.arguments
     var matched = false
+
     private val possibleArguments: MutableList<PossibleArgument> = mutableListOf()
+    private data class PossibleArgument(val type: String, val description: String?)
 
     fun hasNext() = index < arguments.size
 
@@ -78,7 +80,7 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
         possibleArguments.add(PossibleArgument(type, description))
     }
 
-    fun printPossibleArguments() {
+    fun printNoMatchError() {
         matched = true
         if (possibleArguments.isEmpty()) {
             return
@@ -143,11 +145,10 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
 
     inline fun successOrYell(block: CommandDSL.() -> Unit) {
         block()
-        if (!matched) printPossibleArguments()
+        if (!matched) printNoMatchError()
     }
 }
 
-data class PossibleArgument(val type: String, val description: String?)
 
 inline fun MessageContext.dsl(block: CommandDSL.() -> Unit) {
     CommandDSL(this).successOrYell { block() }

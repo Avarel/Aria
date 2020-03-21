@@ -24,7 +24,7 @@ class VolumeCommand : Command<MessageContext> {
                             controller.player.volume = volume
                             context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
 
-                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, "`", "`")
 
                             append(" `")
                             append(original)
@@ -32,7 +32,7 @@ class VolumeCommand : Command<MessageContext> {
                         }
 
                         nothing("View the current volume.") {
-                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, prefix = "`", suffix = "`")
+                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, "`", "`")
                         }
 
                         more { return@requireMusic }
