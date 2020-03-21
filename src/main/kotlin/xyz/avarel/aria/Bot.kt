@@ -13,12 +13,12 @@ import net.dv8tion.jda.api.utils.SessionControllerAdapter
 import net.dv8tion.jda.api.utils.cache.CacheFlag
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.commands.*
-import xyz.avarel.aria.listener.EventAwaiter
 import xyz.avarel.aria.listener.InitialListener
 import xyz.avarel.aria.listener.MessageContextProducer
 import xyz.avarel.aria.listener.VoiceListener
 import xyz.avarel.aria.music.MusicManager
-import xyz.avarel.core.commands.*
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.Dispatcher
 import xyz.avarel.core.commands.impl.DefaultCommandRegistry
 import xyz.avarel.core.store.FileStore
 import xyz.avarel.core.store.Store
@@ -37,14 +37,14 @@ class Bot(
         val name: String = "Aria",
         val prefix: String = "+"
 ) {
-    private val log = LoggerFactory.getLogger(Bot::class.java)!!
+    val log = LoggerFactory.getLogger(Bot::class.java)!!
 
     val shardManager: ShardManager
     val musicManager: MusicManager
 
     val store: Store = FileStore(File("store.properties"))
 
-    val waiter: EventAwaiter = EventAwaiter()
+//    val waiter: EventAwaiter = EventAwaiter()
 
     val commandRegistry = DefaultCommandRegistry<Command<MessageContext>>().apply {
         register(InfoCommand())
@@ -69,10 +69,6 @@ class Bot(
     init {
         log.info("${commandRegistry.entries.size} commands registered.")
 
-        val dispatcher = Dispatcher(CoroutineScope(ForkJoinPool().asCoroutineDispatcher()), commandRegistry)
-
-        val ctxProducer = MessageContextProducer(bot = this, dispatcher = dispatcher)
-
         shardManager = DefaultShardManagerBuilder.createDefault(token).apply {
             setShardsTotal(1)
             setShards(0, 0)
@@ -81,19 +77,33 @@ class Bot(
             setMaxReconnectDelay(32)
             setSessionController(SessionControllerAdapter())
 
-            setEnabledIntents(GatewayIntent.GUILD_MESSAGES, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_PRESENCES, GatewayIntent.GUILD_VOICE_STATES)
+            setEnabledIntents(
+                    GatewayIntent.GUILD_MESSAGES,
+                    GatewayIntent.GUILD_MEMBERS,
+                    GatewayIntent.GUILD_PRESENCES,
+                    GatewayIntent.GUILD_VOICE_STATES
+            )
             setMemberCachePolicy(MemberCachePolicy.ONLINE)
             setChunkingFilter(ChunkingFilter.NONE)
-            setDisabledCacheFlags(EnumSet.of(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE))
+            setDisabledCacheFlags(EnumSet.of(
+                    CacheFlag.ACTIVITY,
+                    CacheFlag.CLIENT_STATUS,
+                    CacheFlag.EMOTE
+            ))
 
-            // JDA-NAS does not have darwin naties.
-            System.getProperty("os.name").let {
-                if (it.indexOf("darwin", ignoreCase = true) < 0 && it.indexOf("mac", ignoreCase = true) < 0) {
-                    setAudioSendFactory(NativeAudioSendFactory())
-                }
-            }
+            setAudioSendFactory(NativeAudioSendFactory())
 
-            addEventListeners(ctxProducer, VoiceListener(this@Bot), InitialListener(this@Bot))
+            addEventListeners(
+                    MessageContextProducer(
+                            this@Bot,
+                            Dispatcher(
+                                    CoroutineScope(ForkJoinPool().asCoroutineDispatcher()),
+                                    this@Bot.commandRegistry
+                            )
+                    ),
+                    VoiceListener(this@Bot),
+                    InitialListener(this@Bot)
+            )
             setActivity(Activity.playing("${prefix}help | I'm alive!"))
         }.build()
 

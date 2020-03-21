@@ -25,9 +25,11 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("stdlib-jdk8"))
 
-    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core",  "1.3.5")
+    implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
 
-    implementation("net.dv8tion", "JDA", "4.1.1_117")
+    implementation("net.dv8tion", "JDA", "4.1.1_117") {
+        exclude(module = "opus-java")
+    }
     implementation("com.sedmelluq", "jda-nas", "1.1.0")
     implementation("com.sedmelluq", "lavaplayer", "1.3.34")
 

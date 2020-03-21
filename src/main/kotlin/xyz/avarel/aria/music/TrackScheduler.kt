@@ -29,12 +29,6 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
     var repeatMode: RepeatMode = RepeatMode.NONE
 
     /**
-     * @return The last [AudioTrack] played.
-     */
-    var lastTrack: AudioTrack? = null
-        private set
-
-    /**
      * @return The total length of the queue in milliseconds.
      */
     val duration: Long get() = queue.fold(0L) { a, track ->
@@ -97,7 +91,6 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
      *        The reason why the track stopped playing
      */
     override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
-        this.lastTrack = track
         LOG.debug("${track.info.title} playback ended.")
 
         if (endReason.mayStartNext) {

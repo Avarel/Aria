@@ -1,8 +1,6 @@
 package xyz.avarel.core.commands
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 
@@ -24,7 +22,6 @@ import org.slf4j.LoggerFactory
  *         The executor service.
  * @author Avarel
  */
-@ObsoleteCoroutinesApi
 class Dispatcher<in CTX: Context, in C: Command<CTX>>(
         private val scope: CoroutineScope,
         private val registry: CommandRegistry<C>

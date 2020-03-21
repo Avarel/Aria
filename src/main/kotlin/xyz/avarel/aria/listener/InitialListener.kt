@@ -10,6 +10,6 @@ class InitialListener(private val bot: Bot) : ListenerAdapter() {
         event.jda.selfUser.manager.apply {
             setName(bot.name)
         }
-        Bot.LOG.info(event.jda.getInviteUrl(Permission.ADMINISTRATOR))
+        bot.log.info(event.jda.getInviteUrl(Permission.ADMINISTRATOR))
     }
 }

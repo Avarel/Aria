@@ -23,10 +23,9 @@ import java.util.*
  */
 class MessageContextProducer(
         private val bot: Bot,
-        @Suppress("EXPERIMENTAL_API_USAGE")
         private val dispatcher: Dispatcher<MessageContext, Command<MessageContext>>
 ) : EventListener {
-    private val argumentPattern = Regex("`{3}(?:\\w+\\n)?([\\s\\S]*?)`{3}|`([^`]+)`|(\\S+)")
+    private val argumentPattern = Regex("""`{3}(?:\w+\n)?([\s\S]*?)`{3}|`([^`]+)`|(\S+)""")
 
     private fun stringSplit(s: String): List<String> {
         val parts = ArrayList<String>()
@@ -50,8 +49,6 @@ class MessageContextProducer(
         if (event is GuildMessageReceivedEvent) {
             if (event.message.contentRaw.startsWith(bot.prefix)) {
                 val list = stringSplit(event.message.contentRaw)
-
-                @Suppress("EXPERIMENTAL_API_USAGE")
                 dispatcher.offer(MessageContext(bot, event.message, list[0].substring(bot.prefix.length).trim(), list.subList(1, list.size)))
             }
         }
