@@ -8,7 +8,8 @@ fun main() {
     val file = File("bot.properties")
     file.inputStream().use(properties::load)
 
-    val token = properties.getProperty("token") ?: throw IllegalStateException("Token was not provided")
+    val token = properties.getProperty("token")
+        ?: throw IllegalStateException("Token was not provided")
     val prefix = properties.getProperty("prefix") ?: "+"
     val name = properties.getProperty("name") ?: "Aria"
 

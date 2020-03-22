@@ -8,45 +8,80 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
     private inline val arguments get() = ctx.arguments
     var matched = false
 
-    private val possibleArguments: MutableList<PossibleArgument> = mutableListOf()
-    private data class PossibleArgument(val type: String, val description: String?)
+    private val possibleArguments: MutableList<PossibleArgument> =
+        mutableListOf()
+
+    private data class PossibleArgument(
+        val type: String,
+        val description: String?
+    )
 
     fun hasNext() = index < arguments.size
 
     fun stringOrNull(consume: Boolean = false): String? {
         return when {
             !hasNext() -> null
-            consume -> arguments.subList(index, arguments.size).joinToString(" ")
+            consume -> arguments.subList(index, arguments.size)
+                .joinToString(" ")
             else -> arguments[index]
         }
     }
 
-    inline fun string(type: String = "(string)", desc: String? = null, consume: Boolean = false, block: CommandDSL.(String) -> Unit) {
+    inline fun string(
+        type: String = "(string)",
+        desc: String? = null,
+        consume: Boolean = false,
+        block: CommandDSL.(String) -> Unit
+    ) {
         argParse(type, desc, block, consume) { it }
     }
 
-    inline fun match(vararg strings: String, desc: String? = null, block: CommandDSL.(String) -> Unit) {
+    inline fun match(
+        vararg strings: String,
+        desc: String? = null,
+        block: CommandDSL.(String) -> Unit
+    ) {
         argParse(strings.joinToString(" | ", "(", ")"), desc, block) { s ->
             if (strings.any { it == s }) s else null
         }
     }
 
-    inline fun integer(type: String = "(integer)", desc: String? = null, block: CommandDSL.(Int) -> Unit) {
+    inline fun integer(
+        type: String = "(integer)",
+        desc: String? = null,
+        block: CommandDSL.(Int) -> Unit
+    ) {
         argParse(type, desc, block, extract = String::toIntOrNull)
     }
 
-    inline fun intInRange(low: Int, high: Int, desc: String? = null, block: CommandDSL.(Int) -> Unit) {
+    inline fun intInRange(
+        low: Int,
+        high: Int,
+        desc: String? = null,
+        block: CommandDSL.(Int) -> Unit
+    ) {
         argParse("($low..$high)", desc, block) {
             it.toIntOrNull().takeIf { i -> i in low..high }
         }
     }
 
-    inline fun time(type: String = "([[hh:]mm:]ss)", desc: String? = null, block: CommandDSL.(Duration) -> Unit) {
+    inline fun time(
+        type: String = "([[hh:]mm:]ss)",
+        desc: String? = null,
+        block: CommandDSL.(Duration) -> Unit
+    ) {
         argParse(type, desc, block, extract = String::toTimeOrNull)
     }
 
-    inline fun <reified T: Enum<T>> enum(desc: String? = null, block: CommandDSL.(T) -> Unit) {
-        val type = enumValues<T>().joinToString(", ", "(", ")") { it.name.toLowerCase() }
+    inline fun <reified T : Enum<T>> enum(
+        desc: String? = null,
+        block: CommandDSL.(T) -> Unit
+    ) {
+        val type = enumValues<T>().joinToString(
+            ", ",
+            "(",
+            ")"
+        ) { it.name.toLowerCase() }
         argParse(type, desc, block) {
             try {
                 enumValueOf<T>(it.toUpperCase())
@@ -69,9 +104,19 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
         matched = true
     }
 
-    inline fun <T> argParse(type: String, description: String?, block: CommandDSL.(T) -> Unit, consume: Boolean = false, extract: (String) -> T?) {
+    inline fun <T> argParse(
+        type: String,
+        description: String?,
+        block: CommandDSL.(T) -> Unit,
+        consume: Boolean = false,
+        extract: (String) -> T?
+    ) {
         if (matched) return
-        val value = stringOrNull(consume)?.let(extract) ?: return addPossibleArgument(type, description)
+        val value =
+            stringOrNull(consume)?.let(extract) ?: return addPossibleArgument(
+                type,
+                description
+            )
         CommandDSL(ctx, index + 1).successOrYell { block(value) }
         matched = true
     }
@@ -95,7 +140,9 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
                 }
                 appendln()
 
-                repeat(ctx.label.length + arguments.subList(0, index).sumBy { it.length + 1 } + 1) {
+                repeat(
+                    ctx.label.length + arguments.subList(0, index)
+                        .sumBy { it.length + 1 } + 1) {
                     append(' ')
                 }
                 when {

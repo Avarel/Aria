@@ -8,7 +8,8 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 class EventAwaiter : EventListener {
-    private val map: MutableMap<Class<*>, MutableSet<AwaitingPoint<GenericEvent>>> = ConcurrentHashMap()
+    private val map: MutableMap<Class<*>, MutableSet<AwaitingPoint<GenericEvent>>> =
+        ConcurrentHashMap()
 
     override fun onEvent(event: GenericEvent) {
         map[event.javaClass]?.forEach { point ->
@@ -19,15 +20,23 @@ class EventAwaiter : EventListener {
     }
 
     @Suppress("UNCHECKED_CAST")
-    suspend fun <T: GenericEvent> wait(cls: Class<T>, predicate: (T) -> Boolean): T {
+    suspend fun <T : GenericEvent> wait(
+        cls: Class<T>,
+        predicate: (T) -> Boolean
+    ): T {
         return suspendCoroutine { cont ->
-            map.getOrPut(cls) { ConcurrentHashMap.newKeySet() } += AwaitingPoint(predicate, cont) as AwaitingPoint<GenericEvent>
+            map.getOrPut(cls) { ConcurrentHashMap.newKeySet() }.add(
+                AwaitingPoint(predicate, cont) as AwaitingPoint<GenericEvent>
+            )
         }
     }
 
-    suspend inline fun <reified T: GenericEvent> wait(noinline predicate: (T) -> Boolean): T {
+    suspend inline fun <reified T : GenericEvent> wait(noinline predicate: (T) -> Boolean): T {
         return wait(T::class.java, predicate)
     }
 
-    class AwaitingPoint<in T: GenericEvent>(val predicate: (T) -> Boolean, val cont: Continuation<T>)
+    class AwaitingPoint<in T : GenericEvent>(
+        val predicate: (T) -> Boolean,
+        val cont: Continuation<T>
+    )
 }

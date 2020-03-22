@@ -3,7 +3,7 @@ package xyz.avarel.core.commands.impl
 import xyz.avarel.core.commands.Command
 import xyz.avarel.core.commands.CommandRegistry
 
-class DefaultCommandRegistry<C: Command<*>> : CommandRegistry<C> {
+class DefaultCommandRegistry<C : Command<*>> : CommandRegistry<C> {
     private val map: MutableMap<String, C> = mutableMapOf()
 
     override val entries: Collection<C> get() = map.values.distinct()

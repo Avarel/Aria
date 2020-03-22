@@ -4,8 +4,8 @@ import xyz.avarel.aria.MessageContext
 import xyz.avarel.core.commands.*
 
 @CommandInfo(
-        aliases = ["help", "info", "i", "h"],
-        description = "Get general information about the bot."
+    aliases = ["help", "info", "i", "h"],
+    description = "Get general information about the bot."
 )
 class InfoCommand : Command<MessageContext> {
     override suspend fun invoke(context: MessageContext) {

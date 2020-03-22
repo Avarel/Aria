@@ -10,7 +10,7 @@ import redis.clients.jedis.exceptions.JedisConnectionException
  *
  * @author Avarel
  */
-class JedisStore(private val pool: JedisPool): Store {
+class JedisStore(private val pool: JedisPool) : Store {
     private val log = LoggerFactory.getLogger(JedisStore::class.java)!!
 
     fun connected(): Boolean {
@@ -23,7 +23,11 @@ class JedisStore(private val pool: JedisPool): Store {
     }
 
     override operator fun get(vararg keys: Any): StoreNode {
-        return JedisStoreNode(if (keys.size == 1) keys[0].toString() else keys.joinToString(":"))
+        return JedisStoreNode(
+            if (keys.size == 1) keys[0].toString() else keys.joinToString(
+                ":"
+            )
+        )
     }
 
     override fun shutdown() {
@@ -31,7 +35,7 @@ class JedisStore(private val pool: JedisPool): Store {
         pool.close()
     }
 
-    inner class JedisStoreNode(key: String): AbstractStoreNode(key) {
+    inner class JedisStoreNode(key: String) : AbstractStoreNode(key) {
         override fun delete() {
             log.debug("Deleting \"$key\".")
             pool.resource.use { client ->

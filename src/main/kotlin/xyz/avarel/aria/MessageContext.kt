@@ -9,8 +9,8 @@ import xyz.avarel.core.commands.Context
  * @author Avarel
  */
 data class MessageContext internal constructor(
-        val bot: Bot,
-        private val message: Message,
-        override val label: String,
-        override val arguments: List<String>
+    val bot: Bot,
+    private val message: Message,
+    override val label: String,
+    override val arguments: List<String>
 ) : Context, Message by message

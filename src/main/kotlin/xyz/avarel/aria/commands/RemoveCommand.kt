@@ -2,12 +2,16 @@ package xyz.avarel.aria.commands
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.utils.*
-import xyz.avarel.core.commands.*
+import xyz.avarel.aria.utils.dsl
+import xyz.avarel.aria.utils.requireMusic
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.sendEmbed
 
 @CommandInfo(
-        aliases = ["remove", "rm"],
-        description = "Remove tracks from the music queue."
+    aliases = ["remove", "rm"],
+    description = "Remove tracks from the music queue."
 )
 class RemoveCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
@@ -28,8 +32,16 @@ class RemoveCommand : Command<MessageContext> {
                 match("all", desc = "Clear the queue.") {
                     remove(context, queue, queue.map { it })
                 }
-                intInRange(1, queue.size, "Index of the track to remove.") { i ->
-                    intInRange(i, queue.size, "Remove a range of tracks.") { j ->
+                intInRange(
+                    1,
+                    queue.size,
+                    "Index of the track to remove."
+                ) { i ->
+                    intInRange(
+                        i,
+                        queue.size,
+                        "Remove a range of tracks."
+                    ) { j ->
                         remove(context, queue, queue.subList(i - 1, j).toList())
                     }
                     nothing("Remove one track.") {
@@ -40,7 +52,11 @@ class RemoveCommand : Command<MessageContext> {
         }
     }
 
-    private fun remove(context: MessageContext, queue: MutableList<AudioTrack>, tracks: List<AudioTrack>) {
+    private fun remove(
+        context: MessageContext,
+        queue: MutableList<AudioTrack>,
+        tracks: List<AudioTrack>
+    ) {
         queue.removeAll(tracks)
         context.channel.sendEmbed("Music Queue") {
             desc {

@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory
  * @param controller Main [MusicController] instance.
  * @author Avarel
  */
-class TrackScheduler(private val controller: MusicController) : AudioEventAdapter() {
+class TrackScheduler(private val controller: MusicController) :
+    AudioEventAdapter() {
     companion object {
         val LOG = LoggerFactory.getLogger(TrackScheduler::class.java)!!
     }
@@ -31,9 +32,10 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
     /**
      * @return The total length of the queue in milliseconds.
      */
-    val duration: Long get() = queue.fold(0L) { a, track ->
-        if (track.duration == Long.MAX_VALUE) return Long.MAX_VALUE else a + track.duration
-    }
+    val duration: Long
+        get() = queue.fold(0L) { a, track ->
+            if (track.duration == Long.MAX_VALUE) return Long.MAX_VALUE else a + track.duration
+        }
 
     /**
      * Add the next track to offer or play right away if nothing is in the offer.
@@ -50,7 +52,9 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
     }
 
     fun remove(index: Int): AudioTrack {
-        if (index >= queue.size) throw IndexOutOfBoundsException("Index out of range: $index, size: ${queue.size}")
+        if (index >= queue.size) {
+            throw IndexOutOfBoundsException("Index out of range: $index, size: ${queue.size}")
+        }
         queue.iterator().apply {
             withIndex().forEach { (i, item) ->
                 if (i == index) {
@@ -90,17 +94,23 @@ class TrackScheduler(private val controller: MusicController) : AudioEventAdapte
      * @param endReason
      *        The reason why the track stopped playing
      */
-    override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
+    override fun onTrackEnd(
+        player: AudioPlayer,
+        track: AudioTrack,
+        endReason: AudioTrackEndReason
+    ) {
         LOG.debug("${track.info.title} playback ended.")
 
         if (endReason.mayStartNext) {
             when (repeatMode) {
                 RepeatMode.SONG -> {
-                    val newTrack = track.makeClone().also { it.userData = track.userData }
+                    val newTrack =
+                        track.makeClone().also { it.userData = track.userData }
                     player.startTrack(newTrack, false)
                 }
                 RepeatMode.QUEUE -> {
-                    val newTrack = track.makeClone().also { it.userData = track.userData }
+                    val newTrack =
+                        track.makeClone().also { it.userData = track.userData }
                     queue.add(newTrack)
                     nextTrack()
                 }

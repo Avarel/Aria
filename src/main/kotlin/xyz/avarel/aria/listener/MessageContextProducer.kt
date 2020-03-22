@@ -22,17 +22,18 @@ import java.util.*
  * @author Avarel
  */
 class MessageContextProducer(
-        private val bot: Bot,
-        private val dispatcher: Dispatcher<MessageContext, Command<MessageContext>>
+    private val bot: Bot,
+    private val dispatcher: Dispatcher<MessageContext, Command<MessageContext>>
 ) : EventListener {
-    private val argumentPattern = Regex("""`{3}(?:\w+\n)?([\s\S]*?)`{3}|`([^`]+)`|(\S+)""")
+    private val argumentPattern =
+        Regex("""`{3}(?:\w+\n)?([\s\S]*?)`{3}|`([^`]+)`|(\S+)""")
 
     private fun stringSplit(s: String): List<String> {
         val parts = ArrayList<String>()
 
         val matcher = argumentPattern.toPattern().matcher(s)
 
-        outer@while (matcher.find()) {
+        outer@ while (matcher.find()) {
             for (i in 1..matcher.groupCount()) {
                 val group = matcher.group(i)
                 if (group != null) {
@@ -49,7 +50,14 @@ class MessageContextProducer(
         if (event is GuildMessageReceivedEvent) {
             if (event.message.contentRaw.startsWith(bot.prefix)) {
                 val list = stringSplit(event.message.contentRaw)
-                dispatcher.offer(MessageContext(bot, event.message, list[0].substring(bot.prefix.length).trim(), list.subList(1, list.size)))
+                dispatcher.offer(
+                    MessageContext(
+                        bot,
+                        event.message,
+                        list[0].substring(bot.prefix.length).trim(),
+                        list.subList(1, list.size)
+                    )
+                )
             }
         }
     }

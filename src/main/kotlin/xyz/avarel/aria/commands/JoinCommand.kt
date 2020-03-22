@@ -7,8 +7,8 @@ import xyz.avarel.aria.music.MusicController.ConnectResult
 import xyz.avarel.core.commands.*
 
 @CommandInfo(
-        aliases = ["join", "j"],
-        description = "Let the bot join your current voice channel."
+    aliases = ["join", "j"],
+    description = "Let the bot join your current voice channel."
 )
 class JoinCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
@@ -33,7 +33,11 @@ fun join(context: MessageContext, move: Boolean): MusicController? {
     return controller
 }
 
-private fun joinMessage(context: MessageContext, controller: MusicController, vc: VoiceChannel) {
+private fun joinMessage(
+    context: MessageContext,
+    controller: MusicController,
+    vc: VoiceChannel
+) {
     context.channel.sendEmbed {
         when (controller.connect(vc)) {
             ConnectResult.SUCCESS -> {

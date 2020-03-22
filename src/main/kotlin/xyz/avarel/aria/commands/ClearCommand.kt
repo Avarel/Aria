@@ -1,15 +1,16 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.music.MusicController
-import xyz.avarel.aria.utils.*
-import xyz.avarel.core.commands.*
-import java.time.Duration
-import java.util.regex.Pattern
+import xyz.avarel.aria.utils.dsl
+import xyz.avarel.aria.utils.requireMusic
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.sendEmbed
 
 @CommandInfo(
-        aliases = ["clear", "clr"],
-        description = "Clear the music queue."
+    aliases = ["clear", "clr"],
+    description = "Clear the music queue."
 )
 class ClearCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {

@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory
  *         The executor service.
  * @author Avarel
  */
-class Dispatcher<in CTX: Context, in C: Command<CTX>>(
-        private val scope: CoroutineScope,
-        private val registry: CommandRegistry<C>
+class Dispatcher<in CTX : Context, in C : Command<CTX>>(
+    private val scope: CoroutineScope,
+    private val registry: CommandRegistry<C>
 ) {
     private val log = LoggerFactory.getLogger(Dispatcher::class.java)!!
 

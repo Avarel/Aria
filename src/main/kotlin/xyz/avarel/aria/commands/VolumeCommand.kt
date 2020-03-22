@@ -2,13 +2,16 @@ package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
 import xyz.avarel.aria.utils.dsl
-import xyz.avarel.aria.utils.requireMusic
 import xyz.avarel.aria.utils.progressBarTo
-import xyz.avarel.core.commands.*
+import xyz.avarel.aria.utils.requireMusic
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.descBuilder
+import xyz.avarel.core.commands.sendEmbed
 
 @CommandInfo(
-        aliases = ["volume", "v", "vol"],
-        description = "Set the volume of the music player."
+    aliases = ["volume", "v", "vol"],
+    description = "Set the volume of the music player."
 
 )
 class VolumeCommand : Command<MessageContext> {
@@ -22,9 +25,17 @@ class VolumeCommand : Command<MessageContext> {
                         intInRange(0, 150, "New volume.") { volume ->
                             val original = controller.player.volume
                             controller.player.volume = volume
-                            context.bot.store[context.guild.id, "music", "volume"].setInt(volume)
+                            context.bot.store[context.guild.id, "music", "volume"].setInt(
+                                volume
+                            )
 
-                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, "`", "`")
+                            progressBarTo(
+                                this@descBuilder,
+                                15,
+                                controller.player.volume.toDouble() / 150.0,
+                                "`",
+                                "`"
+                            )
 
                             append(" `")
                             append(original)
@@ -32,7 +43,13 @@ class VolumeCommand : Command<MessageContext> {
                         }
 
                         nothing("View the current volume.") {
-                            progressBarTo(this@descBuilder, 15, controller.player.volume.toDouble() / 150.0, "`", "`")
+                            progressBarTo(
+                                this@descBuilder,
+                                15,
+                                controller.player.volume.toDouble() / 150.0,
+                                "`",
+                                "`"
+                            )
                         }
 
                         more { return@requireMusic }

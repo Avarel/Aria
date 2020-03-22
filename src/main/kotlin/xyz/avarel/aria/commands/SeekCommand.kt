@@ -2,13 +2,19 @@ package xyz.avarel.aria.commands
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.utils.*
-import xyz.avarel.core.commands.*
+import xyz.avarel.aria.utils.dsl
+import xyz.avarel.aria.utils.formatDuration
+import xyz.avarel.aria.utils.requireMusic
+import xyz.avarel.aria.utils.requireTrack
+import xyz.avarel.core.commands.Command
+import xyz.avarel.core.commands.CommandInfo
+import xyz.avarel.core.commands.desc
+import xyz.avarel.core.commands.sendEmbed
 import java.time.Duration
 
 @CommandInfo(
-        aliases = ["seek", "jump", "scrub"],
-        description = "Seek to a specific time within the track."
+    aliases = ["seek", "jump", "scrub"],
+    description = "Seek to a specific time within the track."
 )
 class SeekCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
@@ -16,15 +22,34 @@ class SeekCommand : Command<MessageContext> {
             requireMusic { controller ->
                 requireTrack(controller) { track ->
                     val current = Duration.ofMillis(track.position)
-                    match("start", "beginning", desc = "Seek to the the start of the track.") {
-                        setDuration(context, track, current, Duration.ofSeconds(0))
+                    match(
+                        "start",
+                        "beginning",
+                        desc = "Seek to the the start of the track."
+                    ) {
+                        setDuration(
+                            context,
+                            track,
+                            current,
+                            Duration.ofSeconds(0)
+                        )
                     }
-                    match("+", "plus", "forward", desc = "Increase the playback position.") {
+                    match(
+                        "+",
+                        "plus",
+                        "forward",
+                        desc = "Increase the playback position."
+                    ) {
                         time(desc = "The time to add to the playback position.") {
                             setDuration(context, track, current, current + it)
                         }
                     }
-                    match("-", "minus", "backward", desc = "Decrease the playback position.") {
+                    match(
+                        "-",
+                        "minus",
+                        "backward",
+                        desc = "Decrease the playback position."
+                    ) {
                         time(desc = "The time to subtract from the playback position.") {
                             setDuration(context, track, current, current - it)
                         }
@@ -37,7 +62,12 @@ class SeekCommand : Command<MessageContext> {
         }
     }
 
-    private fun setDuration(context: MessageContext, track: AudioTrack, current: Duration, duration: Duration) {
+    private fun setDuration(
+        context: MessageContext,
+        track: AudioTrack,
+        current: Duration,
+        duration: Duration
+    ) {
         track.position = duration.toMillis()
 
         context.channel.sendEmbed("Playback") {

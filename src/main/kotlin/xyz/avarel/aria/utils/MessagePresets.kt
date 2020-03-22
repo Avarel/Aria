@@ -16,7 +16,10 @@ inline fun CommandDSL.requireMusic(block: CommandDSL.(controller: MusicControlle
     }
 }
 
-inline fun CommandDSL.requireTrack(controller: MusicController, block: CommandDSL.(track: AudioTrack) -> Unit) {
+inline fun CommandDSL.requireTrack(
+    controller: MusicController,
+    block: CommandDSL.(track: AudioTrack) -> Unit
+) {
     val track = controller.player.playingTrack
     matched = true
     if (track == null) {
@@ -38,11 +41,34 @@ fun requirePlayingTrackMessage(context: MessageContext) {
     }.queue()
 }
 
-fun progressBar(length: Int, percent: Double, prefix: String = "", suffix: String = "", on: Char = '▇', off: Char = '▁'): String {
-    return progressBarTo(StringBuilder(), length, percent, prefix, suffix, on, off).toString()
+fun progressBar(
+    length: Int,
+    percent: Double,
+    prefix: String = "",
+    suffix: String = "",
+    on: Char = '▇',
+    off: Char = '▁'
+): String {
+    return progressBarTo(
+        StringBuilder(),
+        length,
+        percent,
+        prefix,
+        suffix,
+        on,
+        off
+    ).toString()
 }
 
-fun <A: Appendable> progressBarTo(buffer: A, length: Int, percent: Double, prefix: String = "", suffix: String = "", on: Char = '▇', off: Char = '▁'): A {
+fun <A : Appendable> progressBarTo(
+    buffer: A,
+    length: Int,
+    percent: Double,
+    prefix: String = "",
+    suffix: String = "",
+    on: Char = '▇',
+    off: Char = '▁'
+): A {
     buffer.append(prefix)
     repeat((percent * length).toInt()) {
         buffer.append(on)

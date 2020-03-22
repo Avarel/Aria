@@ -27,7 +27,8 @@ fun Duration.formatDuration(): String {
     return "%02d:%02d:%02d".format(h, m % 60, s % 60)
 }
 
-private val timePattern = Pattern.compile("(?:(?:(\\d+):)?(\\d{1,2}):)?(\\d{1,2})")
+private val timePattern =
+    Pattern.compile("(?:(?:(\\d+):)?(\\d{1,2}):)?(\\d{1,2})")
 
 fun String.toTimeOrNull(): Duration? {
     val matcher = timePattern.matcher(this)

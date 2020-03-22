@@ -29,26 +29,30 @@ import kotlin.coroutines.suspendCoroutine
  * @author Avarel
  */
 class MusicManager(private val bot: Bot) {
-    private val registry: MutableMap<Long, MusicController> = ConcurrentHashMap()
+    private val registry: MutableMap<Long, MusicController> =
+        ConcurrentHashMap()
 
     /**
      * A factory that creates new [AudioPlayer] instances.
      */
-    private val playerFactory: AudioPlayerManager = DefaultAudioPlayerManager().also {
-        it.configuration.frameBufferFactory = AudioFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
+    private val playerFactory: AudioPlayerManager =
+        DefaultAudioPlayerManager().apply {
+            configuration.frameBufferFactory =
+                AudioFrameBufferFactory(::NonAllocatingAudioFrameBuffer)
 
-        it.registerSourceManager(YoutubeAudioSourceManager().apply {
-            configureRequests { config ->
-                RequestConfig.copy(config).setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
-            }
-        })
-        it.registerSourceManager(SoundCloudAudioSourceManager.createDefault())
-        it.registerSourceManager(VimeoAudioSourceManager())
-        it.registerSourceManager(BandcampAudioSourceManager())
-        it.registerSourceManager(VimeoAudioSourceManager())
-        it.registerSourceManager(TwitchStreamAudioSourceManager())
-        it.registerSourceManager(BeamAudioSourceManager())
-    }
+            registerSourceManager(YoutubeAudioSourceManager().apply {
+                configureRequests { config ->
+                    RequestConfig.copy(config)
+                        .setCookieSpec(CookieSpecs.IGNORE_COOKIES).build()
+                }
+            })
+            registerSourceManager(SoundCloudAudioSourceManager.createDefault())
+            registerSourceManager(VimeoAudioSourceManager())
+            registerSourceManager(BandcampAudioSourceManager())
+            registerSourceManager(VimeoAudioSourceManager())
+            registerSourceManager(TwitchStreamAudioSourceManager())
+            registerSourceManager(BeamAudioSourceManager())
+        }
 
     /**
      * Get a [MusicController] for the guild or create a new one
@@ -123,7 +127,10 @@ class MusicManager(private val bot: Bot) {
                 override fun playlistLoaded(playlist: AudioPlaylist) {
                     cont.resume(playlist.tracks.let {
                         if (maxResults != -1) {
-                            it.subList(0, maxResults.coerceAtMost(playlist.tracks.size))
+                            it.subList(
+                                0,
+                                maxResults.coerceAtMost(playlist.tracks.size)
+                            )
                         } else it
                     })
                 }

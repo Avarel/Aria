@@ -1,15 +1,16 @@
 package xyz.avarel.aria.commands
 
 import xyz.avarel.aria.MessageContext
-import xyz.avarel.aria.music.MusicController
-import xyz.avarel.aria.utils.*
+import xyz.avarel.aria.utils.dsl
+import xyz.avarel.aria.utils.formatDuration
+import xyz.avarel.aria.utils.remainingDuration
+import xyz.avarel.aria.utils.requireMusic
 import xyz.avarel.core.commands.*
 import java.time.Duration
-import java.util.regex.Pattern
 
 @CommandInfo(
-        aliases = ["queue", "q"],
-        description = "Show the music queue."
+    aliases = ["queue", "q"],
+    description = "Show the music queue."
 )
 class QueueCommand : Command<MessageContext> {
     override suspend operator fun invoke(context: MessageContext) {
@@ -21,7 +22,10 @@ class QueueCommand : Command<MessageContext> {
                             append('`')
                             append(index + 1)
                             append("` `")
-                            append(Duration.ofMillis(audioTrack.duration).formatDuration())
+                            append(
+                                Duration.ofMillis(audioTrack.duration)
+                                    .formatDuration()
+                            )
                             append("` **")
                             append(audioTrack.info.title)
                             append("**")
@@ -29,14 +33,24 @@ class QueueCommand : Command<MessageContext> {
                         }
                     }
 
-                    field("Size", true) { controller.scheduler.queue.size.toString() }
+                    field(
+                        "Size",
+                        true
+                    ) { controller.scheduler.queue.size.toString() }
                     field("Duration", true) {
-                        val duration = controller.scheduler.duration + (controller.player.playingTrack?.remainingDuration ?: 0)
+                        val duration =
+                            controller.scheduler.duration + (controller.player.playingTrack?.remainingDuration
+                                ?: 0)
                         Duration.ofMillis(duration).formatDuration()
                     }
-                    field("Repeat Mode", true) { controller.scheduler.repeatMode.toString() }
+                    field(
+                        "Repeat Mode",
+                        true
+                    ) { controller.scheduler.repeatMode.toString() }
 
-                    field("Now Playing") { controller.player.playingTrack?.info?.title ?: "Nothing" }
+                    field("Now Playing") {
+                        controller.player.playingTrack?.info?.title ?: "Nothing"
+                    }
                 }.queue()
             }
         }

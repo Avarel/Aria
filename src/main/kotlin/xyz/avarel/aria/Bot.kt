@@ -33,9 +33,9 @@ import java.util.concurrent.ForkJoinPool
  */
 
 class Bot(
-        token: String,
-        val name: String = "Aria",
-        val prefix: String = "+"
+    token: String,
+    val name: String = "Aria",
+    val prefix: String = "+"
 ) {
     val log = LoggerFactory.getLogger(Bot::class.java)!!
 
@@ -46,25 +46,26 @@ class Bot(
 
 //    val waiter: EventAwaiter = EventAwaiter()
 
-    val commandRegistry = DefaultCommandRegistry<Command<MessageContext>>().apply {
-        register(InfoCommand())
-        register(PingCommand())
+    val commandRegistry =
+        DefaultCommandRegistry<Command<MessageContext>>().apply {
+            register(InfoCommand())
+            register(PingCommand())
 
-        register(JoinCommand())
-        register(LeaveCommand())
-        register(PlayCommand())
-        register(PauseCommand())
-        register(CurrentCommand())
-        register(VolumeCommand())
-        register(QueueCommand())
-        register(ClearCommand())
-        register(RemoveCommand())
-        register(RepeatCommand())
-        register(SkipCommand())
-        register(SeekCommand())
+            register(JoinCommand())
+            register(LeaveCommand())
+            register(PlayCommand())
+            register(PauseCommand())
+            register(CurrentCommand())
+            register(VolumeCommand())
+            register(QueueCommand())
+            register(ClearCommand())
+            register(RemoveCommand())
+            register(RepeatCommand())
+            register(SkipCommand())
+            register(SeekCommand())
 
-        register(TestCommand())
-    }
+            register(TestCommand())
+        }
 
     init {
         log.info("${commandRegistry.entries.size} commands registered.")
@@ -78,31 +79,33 @@ class Bot(
             setSessionController(SessionControllerAdapter())
 
             setEnabledIntents(
-                    GatewayIntent.GUILD_MESSAGES,
-                    GatewayIntent.GUILD_MEMBERS,
-                    GatewayIntent.GUILD_PRESENCES,
-                    GatewayIntent.GUILD_VOICE_STATES
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.GUILD_PRESENCES,
+                GatewayIntent.GUILD_VOICE_STATES
             )
             setMemberCachePolicy(MemberCachePolicy.ONLINE)
             setChunkingFilter(ChunkingFilter.NONE)
-            setDisabledCacheFlags(EnumSet.of(
+            setDisabledCacheFlags(
+                EnumSet.of(
                     CacheFlag.ACTIVITY,
                     CacheFlag.CLIENT_STATUS,
                     CacheFlag.EMOTE
-            ))
+                )
+            )
 
             setAudioSendFactory(NativeAudioSendFactory())
 
             addEventListeners(
-                    MessageContextProducer(
-                            this@Bot,
-                            Dispatcher(
-                                    CoroutineScope(ForkJoinPool().asCoroutineDispatcher()),
-                                    this@Bot.commandRegistry
-                            )
-                    ),
-                    VoiceListener(this@Bot),
-                    InitialListener(this@Bot)
+                MessageContextProducer(
+                    this@Bot,
+                    Dispatcher(
+                        CoroutineScope(ForkJoinPool().asCoroutineDispatcher()),
+                        this@Bot.commandRegistry
+                    )
+                ),
+                VoiceListener(this@Bot),
+                InitialListener(this@Bot)
             )
             setActivity(Activity.playing("${prefix}help | I'm alive!"))
         }.build()

@@ -6,13 +6,16 @@ import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.requests.restaction.MessageAction
 import java.awt.Color
-import javax.annotation.CheckReturnValue
 
 /**
  * Builds new embed by populating newly created [EmbedBuilder] using provided [block]
  * and then converting it into a [MessageEmbed].
  */
-inline fun buildEmbed(title: String? = null, url: String? = null, block: EmbedBuilder.() -> Unit): MessageEmbed {
+inline fun buildEmbed(
+    title: String? = null,
+    url: String? = null,
+    block: EmbedBuilder.() -> Unit
+): MessageEmbed {
     return EmbedBuilder().setTitle(title, url).apply(block).build()
 }
 
@@ -20,8 +23,11 @@ inline fun buildEmbed(title: String? = null, url: String? = null, block: EmbedBu
  * Builds new embed by populating newly created [EmbedBuilder] using provided [block]
  * and then creating a [MessageAction] from it.
  */
-@CheckReturnValue
-inline fun MessageChannel.sendEmbed(title: String? = null, url: String? = null, block: EmbedBuilder.() -> Unit): MessageAction {
+inline fun MessageChannel.sendEmbed(
+    title: String? = null,
+    url: String? = null,
+    block: EmbedBuilder.() -> Unit
+): MessageAction {
     return this.sendMessage(buildEmbed(title, url) {
         if (this@sendEmbed is TextChannel) {
             setColor(this@sendEmbed.guild.selfMember.colorRaw)
@@ -34,7 +40,11 @@ inline fun MessageChannel.sendEmbed(title: String? = null, url: String? = null, 
  * Builds new embed by populating newly created [EmbedBuilder] using provided [block]
  * and then appending it to this [MessageAction].
  */
-inline fun MessageAction.embed(title: String? = null, url: String? = null, block: EmbedBuilder.() -> Unit): MessageAction {
+inline fun MessageAction.embed(
+    title: String? = null,
+    url: String? = null,
+    block: EmbedBuilder.() -> Unit
+): MessageAction {
     return this.embed(buildEmbed(title, url, block))
 }
 
@@ -97,13 +107,21 @@ inline fun EmbedBuilder.footer(block: () -> String?) {
 /**
  * Field DSL method populated by [block] for [EmbedBuilder].
  */
-inline fun EmbedBuilder.field(title: String, inline: Boolean = false, block: () -> String) {
+inline fun EmbedBuilder.field(
+    title: String,
+    inline: Boolean = false,
+    block: () -> String
+) {
     this.addField(title, block(), inline)
 }
 
 /**
  * Field DSL method, using [StringBuilder] populated by [block], for [EmbedBuilder].
  */
-inline fun EmbedBuilder.fieldBuilder(title: String, inline: Boolean = false, block: StringBuilder.() -> Unit) {
+inline fun EmbedBuilder.fieldBuilder(
+    title: String,
+    inline: Boolean = false,
+    block: StringBuilder.() -> Unit
+) {
     this.addField(title, buildString(block), inline)
 }

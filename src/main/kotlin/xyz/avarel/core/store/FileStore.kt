@@ -14,7 +14,7 @@ import kotlin.concurrent.thread
  *
  * @author Avarel
  */
-class FileStore(private val file: File? = null): Store {
+class FileStore(private val file: File? = null) : Store {
     private val log = LoggerFactory.getLogger(FileStore::class.java)!!
 
     private val properties = Properties()
@@ -33,11 +33,16 @@ class FileStore(private val file: File? = null): Store {
             log.warn("File store initialized without a file.")
             log.warn("All data will be lost when the program shuts down")
         }
-        Runtime.getRuntime().addShutdownHook(thread(start = false, block = ::shutdown))
+        Runtime.getRuntime()
+            .addShutdownHook(thread(start = false, block = ::shutdown))
     }
 
     override operator fun get(vararg keys: Any): StoreNode {
-        return FileStoreNode(if (keys.size == 1) keys[0].toString() else keys.joinToString("/"))
+        return FileStoreNode(
+            if (keys.size == 1) keys[0].toString() else keys.joinToString(
+                "/"
+            )
+        )
     }
 
     override fun shutdown() {
@@ -53,7 +58,7 @@ class FileStore(private val file: File? = null): Store {
         }
     }
 
-    inner class FileStoreNode(key: String): AbstractStoreNode(key) {
+    inner class FileStoreNode(key: String) : AbstractStoreNode(key) {
         override fun delete() {
             log.debug("Deleting \"$key\".")
             properties.remove(key)

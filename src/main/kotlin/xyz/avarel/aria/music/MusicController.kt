@@ -11,7 +11,6 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.VoiceChannel
 import org.slf4j.LoggerFactory
 import xyz.avarel.aria.Bot
-import kotlin.time.Duration
 
 /**
  * Handles music playback for a specific guild.
@@ -24,10 +23,10 @@ import kotlin.time.Duration
  * @author        Avarel
  */
 class MusicController(
-        val bot: Bot,
-        val manager: MusicManager,
-        val player: AudioPlayer,
-        val guild: Guild //TODO uncouple this
+    val bot: Bot,
+    val manager: MusicManager,
+    val player: AudioPlayer,
+    val guild: Guild
 ) {
     companion object {
         val LOG = LoggerFactory.getLogger(MusicController::class.java)!!
@@ -45,7 +44,8 @@ class MusicController(
     /**
      * @return Interface that handles track scheduling, music queue, and repeat options.
      */
-    val scheduler: TrackScheduler = TrackScheduler(this).also(player::addListener)
+    val scheduler: TrackScheduler =
+        TrackScheduler(this).also(player::addListener)
 
     /**
      * @return Interface used to send audio to Discord through JDA.
@@ -61,9 +61,10 @@ class MusicController(
      * @return True or false, depending on if the bot is alone in a voice channel.
      *         null if the bot isn't in a voice channel.
      */
-    val isAlone: Boolean? get() {
-        return channel?.members?.let { it.size == 1 && it[0] == guild.selfMember }
-    }
+    val isAlone: Boolean?
+        get() {
+            return channel?.members?.let { it.size == 1 && it[0] == guild.selfMember }
+        }
 
     /**
      * @return True if this controller is destroyed.
@@ -144,12 +145,18 @@ class MusicController(
         LOG.debug("Attempting to connect to $guild :: $channel.")
         return when {
             destroyed -> throw IllegalStateException("Music manager is destroyed")
-            !guild.selfMember.hasPermission(channel, Permission.VOICE_CONNECT) -> {
+            !guild.selfMember.hasPermission(
+                channel,
+                Permission.VOICE_CONNECT
+            ) -> {
                 LOG.debug("Can not connect to $guild :: $channel because no permission.")
                 ConnectResult.NO_PERMISSION
             }
             channel.userLimit != 0
-                    && guild.selfMember.hasPermission(channel, Permission.VOICE_MOVE_OTHERS)
+                    && guild.selfMember.hasPermission(
+                channel,
+                Permission.VOICE_MOVE_OTHERS
+            )
                     && channel.members.size >= channel.userLimit -> {
                 LOG.debug("Can not connect to $guild :: $channel because it is full.")
                 ConnectResult.USER_LIMIT
