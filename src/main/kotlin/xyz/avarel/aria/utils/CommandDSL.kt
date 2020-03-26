@@ -37,7 +37,7 @@ class CommandDSL(val ctx: MessageContext, val index: Int = 0) {
     }
 
     inline fun match(
-        vararg strings: String,
+        strings: Array<String>,
         desc: String? = null,
         block: CommandDSL.(String) -> Unit
     ) {

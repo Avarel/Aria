@@ -23,25 +23,17 @@ class RemoveCommand : Command<MessageContext> {
                         desc { "The queue is empty." }
                     }
                 }
-                match("first", desc = "Remove the first song of the queue.") {
+                match(arrayOf("first"), "Remove the first song of the queue.") {
                     remove(context, queue, listOf(queue.first()))
                 }
-                match("last", desc = "Remove last song of the queue.") {
+                match(arrayOf("last"), "Remove last song of the queue.") {
                     remove(context, queue, listOf(queue.last()))
                 }
-                match("all", desc = "Clear the queue.") {
+                match(arrayOf("all"), "Clear the queue.") {
                     remove(context, queue, queue.map { it })
                 }
-                intInRange(
-                    1,
-                    queue.size,
-                    "Index of the track to remove."
-                ) { i ->
-                    intInRange(
-                        i,
-                        queue.size,
-                        "Remove a range of tracks."
-                    ) { j ->
+                intInRange(1, queue.size, "Index of the track to remove.") { i ->
+                    intInRange(i, queue.size, "Remove a range of tracks.") { j ->
                         remove(context, queue, queue.subList(i - 1, j).toList())
                     }
                     nothing("Remove one track.") {

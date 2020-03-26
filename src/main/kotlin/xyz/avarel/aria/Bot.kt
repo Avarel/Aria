@@ -65,6 +65,7 @@ class Bot(
             register(SeekCommand())
 
             register(TestCommand())
+            register(EvalCommand())
         }
 
     init {

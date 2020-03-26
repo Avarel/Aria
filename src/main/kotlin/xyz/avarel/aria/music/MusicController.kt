@@ -19,24 +19,25 @@ import xyz.avarel.aria.Bot
  * @param manager [MusicManager] instance.
  * @param player  An audio player that is capable of playing audio tracks
  *                and provides audio frames from the currently playing track.
- * @param guild   [Guild] instance.
+ * @param guildID [Guild] id.
  * @author        Avarel
  */
 class MusicController(
     val bot: Bot,
-    val manager: MusicManager,
+    private val manager: MusicManager,
     val player: AudioPlayer,
-    val guild: Guild
+    private val guildID: Long
 ) {
     companion object {
         val LOG = LoggerFactory.getLogger(MusicController::class.java)!!
-//        val defaultTimescale = TimescaleSettings()
     }
 
-    init {
-        LOG.debug("Created a music controller for $guild.")
+    private val guild: Guild? get() = bot.shardManager.getGuildById(guildID)
 
-        bot.store[guild.id, "music", "volume"].getInt()?.let { volume ->
+    init {
+        LOG.debug("Created a music controller for $guildID.")
+
+        bot.store[guildID, "music", "volume"].getInt()?.let { volume ->
             player.volume = volume
         }
     }
@@ -62,9 +63,7 @@ class MusicController(
      *         null if the bot isn't in a voice channel.
      */
     val isAlone: Boolean?
-        get() {
-            return channel?.members?.let { it.size == 1 && it[0] == guild.selfMember }
-        }
+        get() = channel?.members?.all { it.user.isBot }
 
     /**
      * @return True if this controller is destroyed.
@@ -81,7 +80,7 @@ class MusicController(
      */
     fun destroy() {
         if (!destroyed) {
-            LOG.debug("Destroying the music manager of $guild.")
+            LOG.debug("Destroying the music manager of $guildID.")
 
             leaveJob?.cancel()
             leaveJob = null
@@ -90,7 +89,7 @@ class MusicController(
             player.destroy()
 
             destroyed = true
-            manager.destroy(guild.idLong)
+            manager.destroy(guildID)
         }
     }
 
@@ -100,7 +99,7 @@ class MusicController(
     fun autoDestroy(activate: Boolean) {
         if (activate) {
             if (leaveJob == null) {
-                LOG.debug("Activate auto-destroy music controller for $guild.")
+                LOG.debug("Activate auto-destroy music controller for $guildID.")
                 leaveJob = GlobalScope.launch {
                     delay(30 * 1000)
                     destroy()
@@ -108,7 +107,7 @@ class MusicController(
             }
         } else {
             if (leaveJob != null) {
-                LOG.debug("Cancelled auto-destroy music controller for $guild.")
+                LOG.debug("Cancelled auto-destroy music controller for $guildID.")
                 leaveJob?.cancel()
                 leaveJob = null
             }
@@ -142,33 +141,36 @@ class MusicController(
      * @return [ConnectResult] Result of the connection attempt.
      */
     fun connect(channel: VoiceChannel): ConnectResult {
-        LOG.debug("Attempting to connect to $guild :: $channel.")
-        return when {
-            destroyed -> throw IllegalStateException("Music manager is destroyed")
-            !guild.selfMember.hasPermission(
-                channel,
-                Permission.VOICE_CONNECT
-            ) -> {
-                LOG.debug("Can not connect to $guild :: $channel because no permission.")
-                ConnectResult.NO_PERMISSION
-            }
-            channel.userLimit != 0
-                    && guild.selfMember.hasPermission(
-                channel,
-                Permission.VOICE_MOVE_OTHERS
-            )
-                    && channel.members.size >= channel.userLimit -> {
-                LOG.debug("Can not connect to $guild :: $channel because it is full.")
-                ConnectResult.USER_LIMIT
-            }
-            else -> {
-                guild.audioManager.sendingHandler = sendHandler
-                guild.audioManager.openAudioConnection(channel)
-                this.channel = channel
-                LOG.debug("Successfully connected to $guild :: $channel.")
-                ConnectResult.SUCCESS
+        LOG.debug("Attempting to connect to $guildID :: $channel.")
+        guild?.let { guild ->
+            return when {
+                destroyed -> throw IllegalStateException("Music manager is destroyed")
+                !guild.selfMember.hasPermission(
+                    channel,
+                    Permission.VOICE_CONNECT
+                ) -> {
+                    LOG.debug("Can not connect to $guildID :: $channel because no permission.")
+                    ConnectResult.NO_PERMISSION
+                }
+                channel.userLimit != 0
+                        && guild.selfMember.hasPermission(
+                    channel,
+                    Permission.VOICE_MOVE_OTHERS
+                )
+                        && channel.members.size >= channel.userLimit -> {
+                    LOG.debug("Can not connect to $guildID :: $channel because it is full.")
+                    ConnectResult.USER_LIMIT
+                }
+                else -> {
+                    guild.audioManager.sendingHandler = sendHandler
+                    guild.audioManager.openAudioConnection(channel)
+                    this.channel = channel
+                    LOG.debug("Successfully connected to $guild :: $channel.")
+                    ConnectResult.SUCCESS
+                }
             }
         }
+        throw IllegalStateException("$guildID in cache is null")
     }
 
     /**
@@ -176,10 +178,10 @@ class MusicController(
      */
     fun close() {
         LOG.debug("Closed audio connection to $guild.")
-        guild.let {
+        guild?.let {
             it.audioManager.closeAudioConnection()
             it.audioManager.sendingHandler = null
-            channel = null
         }
+        channel = null
     }
 }

@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.3.70"
+    kotlin("jvm") version "1.3.71"
     java
     idea
     application
@@ -24,6 +24,11 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("stdlib-jdk8"))
+
+    implementation(kotlin("script-runtime"))
+    implementation(kotlin("script-util"))
+    implementation(kotlin("compiler-embeddable"))
+    implementation(kotlin("scripting-jsr223-embeddable"))
 
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-core", "1.3.5")
 

@@ -81,7 +81,7 @@ class MusicManager(private val bot: Bot) {
             destroy(guildID)
             throw IllegalStateException("Guild $guildID doesn't exist.")
         }
-        return MusicController(bot, this, playerFactory.createPlayer(), guild)
+        return MusicController(bot, this, playerFactory.createPlayer(), guildID)
     }
 
     /**

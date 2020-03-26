@@ -33,20 +33,20 @@ class QueueCommand : Command<MessageContext> {
                         }
                     }
 
-                    field(
-                        "Size",
-                        true
-                    ) { controller.scheduler.queue.size.toString() }
+                    field("Size", true) {
+                        controller.scheduler.queue.size.toString()
+                    }
+
                     field("Duration", true) {
                         val duration =
                             controller.scheduler.duration + (controller.player.playingTrack?.remainingDuration
                                 ?: 0)
                         Duration.ofMillis(duration).formatDuration()
                     }
-                    field(
-                        "Repeat Mode",
-                        true
-                    ) { controller.scheduler.repeatMode.toString() }
+
+                    field("Repeat Mode", true) {
+                        controller.scheduler.repeatMode.toString()
+                    }
 
                     field("Now Playing") {
                         controller.player.playingTrack?.info?.title ?: "Nothing"

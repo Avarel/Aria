@@ -19,7 +19,7 @@ class TestCommand : Command<MessageContext> {
             time {
                 context.channel.sendMessage("Got a time $it").queue()
             }
-            match("dank", "meme", desc = "wow") {
+            match(arrayOf("dank", "meme"), "wow") {
                 context.channel.sendMessage("Got a match $it").queue()
             }
         }

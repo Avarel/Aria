@@ -22,34 +22,15 @@ class SeekCommand : Command<MessageContext> {
             requireMusic { controller ->
                 requireTrack(controller) { track ->
                     val current = Duration.ofMillis(track.position)
-                    match(
-                        "start",
-                        "beginning",
-                        desc = "Seek to the the start of the track."
-                    ) {
-                        setDuration(
-                            context,
-                            track,
-                            current,
-                            Duration.ofSeconds(0)
-                        )
+                    match(arrayOf("start", "beginning"), "Seek to the the start of the track.") {
+                        setDuration(context, track, current, Duration.ofSeconds(0))
                     }
-                    match(
-                        "+",
-                        "plus",
-                        "forward",
-                        desc = "Increase the playback position."
-                    ) {
+                    match(arrayOf("+", "plus", "forward"), "Increase the playback position.") {
                         time(desc = "The time to add to the playback position.") {
                             setDuration(context, track, current, current + it)
                         }
                     }
-                    match(
-                        "-",
-                        "minus",
-                        "backward",
-                        desc = "Decrease the playback position."
-                    ) {
+                    match(arrayOf("-", "minus", "backward"), "Decrease the playback position.") {
                         time(desc = "The time to subtract from the playback position.") {
                             setDuration(context, track, current, current - it)
                         }
